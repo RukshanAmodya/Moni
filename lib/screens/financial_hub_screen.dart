@@ -113,29 +113,40 @@ class _FinancialHubScreenState extends State<FinancialHubScreen> {
             preferredSize: const Size.fromHeight(60),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: TabBar(
-                  isScrollable: true,
-                  dividerColor: Colors.transparent,
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  indicator: BoxDecoration(
-                    color: MoniTheme.sageGreen.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
+              child: Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 440),
+                  height: 48,
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.03),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  labelColor: MoniTheme.sageGreen,
-                  unselectedLabelColor: MoniTheme.mutedText,
-                  labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                  tabs: const [
-                    Tab(text: 'EMI Calc'),
-                    Tab(text: 'Debts & Reminders'),
-                    Tab(text: 'Tax Calc'),
-                    Tab(text: 'Shopping List'),
-                  ],
+                  child: TabBar(
+                    isScrollable: true,
+                    dividerColor: Colors.transparent,
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicator: BoxDecoration(
+                      color: MoniTheme.sageGreen.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    labelColor: MoniTheme.sageGreen,
+                    unselectedLabelColor: MoniTheme.mutedText,
+                    labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                    tabs: const [
+                      Tab(text: 'EMI Calc'),
+                      Tab(text: 'Debts & Reminders'),
+                      Tab(text: 'Tax Calc'),
+                      Tab(text: 'Shopping List'),
+                    ],
+                  ),
                 ),
               ),
             ),

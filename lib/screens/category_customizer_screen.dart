@@ -82,30 +82,41 @@ class _CategoryCustomizerScreenState extends State<CategoryCustomizerScreen> wit
         elevation: 0,
         foregroundColor: MoniTheme.darkText,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50),
+          preferredSize: const Size.fromHeight(60),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Container(
-              height: 46,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                dividerColor: Colors.transparent,
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicator: BoxDecoration(
-                  color: MoniTheme.sageGreen.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(12),
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 360),
+                height: 46,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                labelColor: MoniTheme.sageGreen,
-                unselectedLabelColor: MoniTheme.mutedText,
-                labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                tabs: const [
-                  Tab(text: 'Expenses'),
-                  Tab(text: 'Incomes'),
-                ],
+                child: TabBar(
+                  controller: _tabController,
+                  dividerColor: Colors.transparent,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicator: BoxDecoration(
+                    color: MoniTheme.sageGreen.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  labelColor: MoniTheme.sageGreen,
+                  unselectedLabelColor: MoniTheme.mutedText,
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  tabs: const [
+                    Tab(text: 'Expenses'),
+                    Tab(text: 'Incomes'),
+                  ],
+                ),
               ),
             ),
           ),
