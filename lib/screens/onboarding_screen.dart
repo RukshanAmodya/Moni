@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/moni_theme.dart';
@@ -13,24 +14,19 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  double _dragPosition = 0.0;
 
   final List<Map<String, String>> _onboardingData = [
     {
-      'title': 'TURN INCOME INTO\nSMART INVESTMENTS',
+      'title': 'Moni',
       'description': 'Welcome to Moni. Keep track of daily expenses, manage wallets, and save money effortlessly with an elegant design.',
     },
     {
-      'title': 'TRACK DAILY\nEXPENSES IN A CLICK',
-      'description': 'Log income or expense instantly. Categorize them into Food, Bills, Shopping, or create custom categories in Settings.',
+      'title': 'Your Finances in One Place',
+      'description': 'Get the big picture on all your money. Connect your wallets, track cash flow, and manage your budget smarter.',
     },
     {
-      'title': 'SET BUDGETS &\nWARNING NOTIFICATIONS',
-      'description': 'Set monthly budget limits for each category. Moni alerts you with warning badges if you spend above 80% of your limit.',
-    },
-    {
-      'title': 'SECURE BIOMETRICS\n& CLOUD SYNCING',
-      'description': 'Activate Fingerprint/PIN lock to secure financial data. Sign in with Firebase to automatically sync and backup your data.',
+      'title': 'Invite Other People',
+      'description': 'Connect all your accounts with your friends or family. Add savings, credit cards, bank accounts, and more.',
     },
   ];
 
@@ -46,243 +42,121 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MoniTheme.sageGreen,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            // Header Title
-            Text(
-              'MONI',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 4,
-                  ),
-            ),
-            const SizedBox(height: 20),
+    const Color brandPurple = Color(0xFF8A72F6); // Premium purple from mockup
 
-            // Page View for Graphic/Illustrations
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (int index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemCount: _onboardingData.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                    child: Center(
-                      child: Container(
-                        width: double.infinity,
-                        height: 260,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(32),
-                          border: Border.all(color: Colors.white.withOpacity(0.2)),
-                        ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // Interactive/dynamic vector shapes representing features
-                            _buildIllustrationForPage(index),
-                          ],
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFE5E7FD), // Soft purple/lavender
+              Colors.white,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.0, 0.60],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              const SizedBox(height: 30),
+
+              // Page View for Graphic/Illustrations
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (int index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  itemCount: _onboardingData.length,
+                  itemBuilder: (context, index) {
+                    return _buildIllustrationForPage(index);
+                  },
+                ),
+              ),
+
+              // Bottom card with text details & button
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Title
+                    Text(
+                      _currentPage == 0 ? '' : _onboardingData[_currentPage]['title']!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 22,
+                        color: MoniTheme.darkText,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Description
+                    SizedBox(
+                      height: 60,
+                      child: Text(
+                        _currentPage == 0 ? '' : _onboardingData[_currentPage]['description']!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: MoniTheme.mutedText,
+                          height: 1.5,
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
+                    const SizedBox(height: 24),
 
-            // Indicators
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _onboardingData.length,
-                (index) => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentPage == index ? 24 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    color: _currentPage == index ? Colors.white : Colors.white.withOpacity(0.4),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Bottom card with text details
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(28, 36, 28, 48),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Title
-                  SizedBox(
-                    height: 80,
-                    child: Text(
-                      _onboardingData[_currentPage]['title']!,
-                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            fontSize: 26,
-                            height: 1.2,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
+                    // Slide Indicators
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        _onboardingData.length,
+                        (index) => Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: _currentPage == index ? 20 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: _currentPage == index ? brandPurple : brandPurple.withOpacity(0.2),
                           ),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Description
-                  SizedBox(
-                    height: 70,
-                    child: Text(
-                      _onboardingData[_currentPage]['description']!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 14,
-                            height: 1.5,
-                          ),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
+                    const SizedBox(height: 32),
 
-                  // Button (Slideable on final page, tap to next page on other pages)
-                  Builder(
-                    builder: (context) {
-                      final isFinalPage = _currentPage == _onboardingData.length - 1;
-                      if (!isFinalPage) {
-                        return GestureDetector(
-                          onTap: () {
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          },
-                          child: Container(
-                            height: 56,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: MoniTheme.blackAccent,
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                                  alignment: Alignment.center,
-                                  child: const Text(
-                                    'Next Step',
-                                    style: TextStyle(
-                                      color: MoniTheme.blackAccent,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 16.0),
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.chevron_right, color: Colors.white, size: 20),
-                                      Icon(Icons.chevron_right, color: Colors.white, size: 20),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-
-                      // Slideable "Get Started" Button
-                      return LayoutBuilder(
-                        builder: (context, constraints) {
-                          final double maxDrag = constraints.maxWidth - 56.0;
-                          return Container(
-                            height: 56,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(28),
-                              border: Border.all(color: Colors.white.withOpacity(0.24), width: 1.5),
-                            ),
-                            child: Stack(
-                              children: [
-                                const Center(
-                                  child: Text(
-                                    'Swipe to Get Started',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  left: _dragPosition,
-                                  top: 1,
-                                  bottom: 1,
-                                  child: GestureDetector(
-                                    onHorizontalDragUpdate: (details) {
-                                      setState(() {
-                                        _dragPosition = (_dragPosition + details.delta.dx).clamp(0.0, maxDrag);
-                                      });
-                                    },
-                                    onHorizontalDragEnd: (details) {
-                                      if (_dragPosition >= maxDrag * 0.8) {
-                                        setState(() {
-                                          _dragPosition = maxDrag;
-                                        });
-                                        _finishOnboarding();
-                                      } else {
-                                        setState(() {
-                                          _dragPosition = 0.0;
-                                        });
-                                      }
-                                    },
-                                    child: Container(
-                                      width: 50,
-                                      height: 50,
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(Icons.arrow_forward_rounded, color: MoniTheme.sageGreen, size: 22),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                    // Navigation Button
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: brandPurple,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size.fromHeight(56),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        if (_currentPage < _onboardingData.length - 1) {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
                           );
-                        },
-                      );
-                    },
-                  ),
-                ],
+                        } else {
+                          _finishOnboarding();
+                        }
+                      },
+                      child: Text(
+                        _currentPage == _onboardingData.length - 1 ? 'Get Started' : 'Next Step',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -291,107 +165,165 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget _buildIllustrationForPage(int index) {
     switch (index) {
       case 0:
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            for (int i = 1; i <= 2; i++)
-              Container(
-                width: i * 110.0,
-                height: i * 110.0,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withOpacity(0.08), width: 1.5),
-                ),
-              ),
-            CustomPaint(
-              size: const Size(180, 80),
-              painter: OnboardingChartPainter(),
-            ),
-          ],
-        );
-      case 1:
-        return const Center(
-          child: Column(
+        // Screen 1: Splash screen with the logo and the text "Moni"
+        return Center(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 64),
-              SizedBox(height: 12),
-              Text(
-                'LKR 1,500.00 Saved',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF8A72F6),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.savings_outlined, color: Colors.white, size: 24),
+              ),
+              const SizedBox(width: 14),
+              const Text(
+                'Moni',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF8A72F6),
+                  letterSpacing: 0.5,
+                ),
               ),
             ],
+          ),
+        );
+      case 1:
+        // Screen 2: Centered purple logo surrounded by 6 category icons floating in a circle
+        final List<Map<String, dynamic>> floatingIcons = [
+          {'icon': Icons.local_grocery_store, 'color': Colors.green},
+          {'icon': Icons.home_rounded, 'color': Colors.purple},
+          {'icon': Icons.campaign_rounded, 'color': Colors.orange},
+          {'icon': Icons.flight_takeoff_rounded, 'color': Colors.blue},
+          {'icon': Icons.directions_car_rounded, 'color': Colors.lightBlue},
+          {'icon': Icons.menu_book_rounded, 'color': Colors.deepPurple},
+        ];
+
+        return Center(
+          child: SizedBox(
+            width: 280,
+            height: 280,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Inner center circle logo
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 15, offset: Offset(0, 5)),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.wallet, color: Color(0xFF8A72F6), size: 36),
+                  ),
+                ),
+                // Floating icons positioned in a circle
+                ...List.generate(6, (idx) {
+                  final angle = (idx * 2 * pi) / 6 - (pi / 2);
+                  final double x = 100 * cos(angle);
+                  final double y = 100 * sin(angle);
+                  final item = floatingIcons[idx];
+
+                  return Transform.translate(
+                    offset: Offset(x, y),
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                        ],
+                      ),
+                      child: Icon(item['icon'], color: item['color'], size: 20),
+                    ),
+                  );
+                }),
+              ],
+            ),
           ),
         );
       case 2:
+        // Screen 3: List of clean contact cards (Ethan Cole, Alex Carter, Maya Bennett)
+        final List<Map<String, String>> contacts = [
+          {'name': 'Ethan Cole', 'email': 'ethancoleux@gmail.com'},
+          {'name': 'Alex Carter', 'email': 'alex.carter@email.com'},
+          {'name': 'Maya Bennett', 'email': 'maya.bennett@email.com'},
+        ];
+
         return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 64),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'Food Budget: 82% Used!',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: contacts.map((contact) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: const Color(0xFF8A72F6).withOpacity(0.12),
+                        child: Text(
+                          contact['name']![0],
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF8A72F6)),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              contact['name']!,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: MoniTheme.darkText),
+                            ),
+                            Text(
+                              contact['email']!,
+                              style: const TextStyle(fontSize: 11, color: MoniTheme.mutedText),
+                            ),
+                          ],
+                        ),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.grey.shade100,
+                          foregroundColor: MoniTheme.darkText,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        onPressed: () {},
+                        child: const Text('Invite', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
           ),
         );
       default:
-        return const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.cloud_done_outlined, color: Colors.white, size: 64),
-              SizedBox(height: 12),
-              Text(
-                'Secure Sync Enabled',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-            ],
-          ),
-        );
+        return const SizedBox();
     }
   }
-}
-
-class OnboardingChartPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paintLine = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final path = Path();
-    path.moveTo(0, size.height * 0.8);
-    path.quadraticBezierTo(
-      size.width * 0.25,
-      size.height * 0.9,
-      size.width * 0.4,
-      size.height * 0.5,
-    );
-    path.quadraticBezierTo(
-      size.width * 0.55,
-      size.height * 0.1,
-      size.width * 0.75,
-      size.height * 0.3,
-    );
-    path.lineTo(size.width, size.height * 0.15);
-
-    canvas.drawPath(path, paintLine);
-    final dotPaint = Paint()..color = Colors.white..style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(size.width, size.height * 0.15), 6, dotPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
