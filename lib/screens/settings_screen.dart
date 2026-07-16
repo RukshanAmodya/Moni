@@ -142,6 +142,7 @@ class SettingsScreen extends StatelessWidget {
                     ListTile(
                       title: const Text('Primary Currency'),
                       trailing: DropdownButton<String>(
+                        borderRadius: BorderRadius.circular(16),
                         value: finance.currency,
                         underline: const SizedBox(),
                         items: const [

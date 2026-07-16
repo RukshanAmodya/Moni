@@ -123,6 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: DropdownButton<String>(
+                      borderRadius: BorderRadius.circular(16),
                       value: _timeRange,
                       items: ['Week', 'Month']
                           .map((e) => DropdownMenuItem(
