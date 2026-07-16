@@ -21,6 +21,7 @@ class FinanceProvider with ChangeNotifier {
   double _overallMonthlyBudget = 0.0;
   double _overallWeeklyBudget = 0.0;
   double _overallDailyBudget = 0.0;
+  double _piggyBankBalance = 0.0;
 
   List<Transaction> get transactions => _transactions;
   List<Budget> get budgets => _budgets;
@@ -32,6 +33,7 @@ class FinanceProvider with ChangeNotifier {
   double get overallMonthlyBudget => _overallMonthlyBudget;
   double get overallWeeklyBudget => _overallWeeklyBudget;
   double get overallDailyBudget => _overallDailyBudget;
+  double get piggyBankBalance => _piggyBankBalance;
 
   List<String> _incomeCategories = ['Salary', 'Investment', 'Other'];
   List<String> _expenseCategories = ['Food', 'Transport', 'Bills', 'Shopping', 'Other'];
@@ -116,9 +118,35 @@ class FinanceProvider with ChangeNotifier {
     _overallMonthlyBudget = await _storage.getOverallMonthlyBudget();
     _overallWeeklyBudget = await _storage.getOverallWeeklyBudget();
     _overallDailyBudget = await _storage.getOverallDailyBudget();
+    _piggyBankBalance = await _storage.getPiggyBankBalance();
 
     await processRecurringTransactions();
     notifyListeners();
+  }
+
+  Future<void> addToPiggyBank(double amount) async {
+    _piggyBankBalance += amount;
+    await _storage.setPiggyBankBalance(_piggyBankBalance);
+    
+    // Deduct from Cash Wallet
+    final cashIdx = _wallets.indexWhere((w) => w.id == 'cash');
+    if (cashIdx != -1) {
+      _wallets[cashIdx] = _wallets[cashIdx].copyWith(balance: _wallets[cashIdx].balance - amount);
+      await _storage.saveWallets(_wallets);
+    }
+    _notifyAndSync();
+  }
+
+  Future<void> clearPiggyBank() async {
+    // Return piggy bank balance back to Cash wallet
+    final cashIdx = _wallets.indexWhere((w) => w.id == 'cash');
+    if (cashIdx != -1) {
+      _wallets[cashIdx] = _wallets[cashIdx].copyWith(balance: _wallets[cashIdx].balance + _piggyBankBalance);
+      await _storage.saveWallets(_wallets);
+    }
+    _piggyBankBalance = 0.0;
+    await _storage.setPiggyBankBalance(0.0);
+    _notifyAndSync();
   }
 
   Future<void> updateOverallMonthlyBudget(double val) async {
@@ -211,6 +239,22 @@ class FinanceProvider with ChangeNotifier {
         final toWallet = _wallets[toWalletIdx];
         _wallets[toWalletIdx] = toWallet.copyWith(balance: toWallet.balance + transaction.amount);
         await _storage.saveWallets(_wallets);
+      }
+    }
+
+    // Spare Change Auto-Save: Round up expense to nearest 100 LKR/USD
+    if (transaction.type == 'expense') {
+      final double nextHundred = ((transaction.amount / 100).ceil() * 100).toDouble();
+      final double spareChange = nextHundred - transaction.amount;
+      if (spareChange > 0 && spareChange < 100) {
+        _piggyBankBalance += spareChange;
+        await _storage.setPiggyBankBalance(_piggyBankBalance);
+        
+        if (walletIdx != -1) {
+          final wallet = _wallets[walletIdx];
+          _wallets[walletIdx] = wallet.copyWith(balance: wallet.balance - spareChange);
+          await _storage.saveWallets(_wallets);
+        }
       }
     }
 

@@ -128,10 +128,21 @@ class StorageService {
   static const String keyOverallMonthlyBudget = 'moni_overall_monthly_budget';
   static const String keyOverallWeeklyBudget = 'moni_overall_weekly_budget';
   static const String keyOverallDailyBudget = 'moni_overall_daily_budget';
+  static const String keyPiggyBankBalance = 'moni_piggy_bank_balance';
 
   Future<void> setCurrency(String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(keyCurrency, value);
+  }
+
+  Future<double> getPiggyBankBalance() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(keyPiggyBankBalance) ?? 0.0;
+  }
+
+  Future<void> setPiggyBankBalance(double val) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(keyPiggyBankBalance, val);
   }
 
   Future<double> getOverallMonthlyBudget() async {

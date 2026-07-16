@@ -313,6 +313,83 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 24),
 
+              // Virtual Piggy Bank Widget
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: MoniTheme.sageGreen.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 26,
+                      backgroundColor: MoniTheme.sageGreen,
+                      child: const Icon(Icons.savings_outlined, color: Colors.white, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Virtual Piggy Bank',
+                            style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: MoniTheme.darkText),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$currencySymbol ${NumberFormat('#,##0.00').format(finance.piggyBankBalance)}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: MoniTheme.sageGreen),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Spare change rounded up automatically!',
+                            style: TextStyle(fontSize: 11, color: MoniTheme.mutedText),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: MoniTheme.blackAccent,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            minimumSize: Size.zero,
+                          ),
+                          onPressed: () => _showAddPiggyBankDialog(context, finance),
+                          child: const Text('Add LKR', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                        const SizedBox(height: 6),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.redAccent,
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () {
+                            if (finance.piggyBankBalance > 0) {
+                              finance.clearPiggyBank();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Piggy Bank funds returned to Cash wallet!')),
+                              );
+                            }
+                          },
+                          child: const Text('Cash Out', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
               // Savings Goals Progress (Section 1)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -633,6 +710,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
               }
             },
             child: const Text('Add', style: TextStyle(color: MoniTheme.sageGreen)),
+          ),
+        ],
+      ),
+    );
+  void _showAddPiggyBankDialog(BuildContext context, FinanceProvider finance) {
+    final amountController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text('Add to Piggy Bank', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: amountController,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(
+            labelText: 'Amount (LKR)',
+            hintText: 'Enter amount to transfer from Cash',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: MoniTheme.mutedText)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: MoniTheme.blackAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              final amount = double.tryParse(amountController.text) ?? 0.0;
+              if (amount > 0) {
+                finance.addToPiggyBank(amount);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Add Cash'),
           ),
         ],
       ),
