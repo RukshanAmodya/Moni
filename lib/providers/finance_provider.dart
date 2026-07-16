@@ -312,4 +312,16 @@ class FinanceProvider with ChangeNotifier {
     }
     return success;
   }
+
+  // Export transactions to CSV format
+  String exportTransactionsToCsv() {
+    final buffer = StringBuffer();
+    buffer.writeln('ID,Title,Amount,Type,Category,Date,Wallet,Recurring,Interval');
+    for (var tx in _transactions) {
+      buffer.writeln(
+        '${tx.id},"${tx.title}",${tx.amount},${tx.type},${tx.category},${tx.date.toIso8601String()},${tx.walletId},${tx.isRecurring},${tx.recurrenceInterval}'
+      );
+    }
+    return buffer.toString();
+  }
 }
