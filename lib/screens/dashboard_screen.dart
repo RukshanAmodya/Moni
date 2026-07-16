@@ -5,6 +5,8 @@ import '../providers/finance_provider.dart';
 import '../theme/moni_theme.dart';
 import '../models/finance_models.dart';
 import 'transactions_screen.dart'; // to open the AddTransaction dialog
+import 'wallet_details_screen.dart';
+import 'budget_progress_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -160,6 +162,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     icon: Icons.account_balance_wallet_outlined,
                     iconBgColor: MoniTheme.sageGreenLight,
                     iconColor: MoniTheme.sageGreen,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletDetailsScreen())),
                   ),
                   _buildMetricCard(
                     context,
@@ -187,6 +190,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     icon: Icons.track_changes_rounded,
                     iconBgColor: const Color(0xFFF5EBFB),
                     iconColor: Colors.purpleAccent,
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BudgetProgressScreen())),
                   ),
                 ],
               ),
@@ -441,60 +445,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required IconData icon,
     required Color iconBgColor,
     required Color iconColor,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: MoniTheme.premiumCardDecoration,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: MoniTheme.premiumCardDecoration,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: iconBgColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: iconColor, size: 20),
                 ),
-                child: Icon(icon, color: iconColor, size: 20),
-              ),
-              Text(
-                percentage,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: percentage.startsWith('-') ? Colors.red : Colors.green,
-                ),
-              ),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: MoniTheme.mutedText,
-                ),
-              ),
-              const SizedBox(height: 4),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: MoniTheme.darkText,
+                Text(
+                  percentage,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: percentage.startsWith('-') ? Colors.red : Colors.green,
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: MoniTheme.mutedText,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: MoniTheme.darkText,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

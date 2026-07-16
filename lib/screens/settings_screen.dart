@@ -5,6 +5,12 @@ import '../providers/finance_provider.dart';
 import '../theme/moni_theme.dart';
 import 'pin_lock_screen.dart';
 import '../models/finance_models.dart';
+import 'wallet_details_screen.dart';
+import 'budget_progress_screen.dart';
+import 'recurring_subscriptions_screen.dart';
+import 'category_customizer_screen.dart';
+import 'reports_export_screen.dart';
+import 'financial_tips_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -58,6 +64,30 @@ class SettingsScreen extends StatelessWidget {
                       title: const Text('Configure Budgets'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => _showConfigureBudgetsDialog(context, finance),
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    ListTile(
+                      title: const Text('Wallets & Accounts'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletDetailsScreen())),
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    ListTile(
+                      title: const Text('Budget Tracking Progress'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BudgetProgressScreen())),
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    ListTile(
+                      title: const Text('Recurring Subscriptions'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecurringSubscriptionsScreen())),
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    ListTile(
+                      title: const Text('Customize Categories'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoryCustomizerScreen())),
                     ),
                   ],
                 ),
@@ -129,6 +159,20 @@ class SettingsScreen extends StatelessWidget {
                           const SnackBar(content: Text('CSV Report copied to clipboard!')),
                         );
                       },
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    ListTile(
+                      leading: const Icon(Icons.analytics_outlined, color: Colors.deepOrangeAccent),
+                      title: const Text('Export Report Wizard'),
+                      subtitle: const Text('Filter and copy custom reports to CSV'),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsExportScreen())),
+                    ),
+                    const Divider(height: 1, indent: 16, endIndent: 16),
+                    ListTile(
+                      leading: const Icon(Icons.lightbulb_outline_rounded, color: Colors.amber),
+                      title: const Text('Financial Education Hub'),
+                      subtitle: const Text('Read personal finance tips & recommendations'),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FinancialTipsScreen())),
                     ),
                   ],
                 ),

@@ -16,12 +16,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   String _typeFilter = 'All'; // 'All', 'Income', 'Expense'
   String _categoryFilter = 'All';
 
-  final List<String> _categories = ['All', 'Food', 'Transport', 'Bills', 'Shopping', 'Salary', 'Investment', 'Other'];
-
   @override
   Widget build(BuildContext context) {
     final finance = Provider.of<FinanceProvider>(context);
     final currencySymbol = finance.currency;
+    final categories = ['All', ...finance.expenseCategories, ...finance.incomeCategories].toSet().toList();
 
     // Filter transactions
     final filteredTxs = finance.transactions.where((t) {
@@ -98,7 +97,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         value: _categoryFilter,
                         isExpanded: true,
                         underline: const SizedBox(),
-                        items: _categories
+                        items: categories
                             .map((cat) => DropdownMenuItem(
                                   value: cat,
                                   child: Text(cat),
@@ -300,22 +299,19 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _amountController = TextEditingController();
 
   String _type = 'expense'; // 'income' or 'expense'
-  String _category = 'Food';
+  String _category = '';
   String _walletId = 'cash';
   bool _isRecurring = false;
   String _recurrenceInterval = 'none';
 
-  final List<String> _incomeCategories = ['Salary', 'Investment', 'Other'];
-  final List<String> _expenseCategories = ['Food', 'Transport', 'Bills', 'Shopping', 'Other'];
-
   @override
   Widget build(BuildContext context) {
-    final finance = Provider.of<FinanceProvider>(context, listen: false);
-    final categories = _type == 'income' ? _incomeCategories : _expenseCategories;
+    final finance = Provider.of<FinanceProvider>(context);
+    final categories = _type == 'income' ? finance.incomeCategories : finance.expenseCategories;
 
-    // Reset selected category if not in current category list
-    if (!categories.contains(_category)) {
-      _category = categories.first;
+    // Reset/initialize selected category if not in current category list
+    if (_category.isEmpty || !categories.contains(_category)) {
+      _category = categories.isNotEmpty ? categories.first : 'Other';
     }
 
     return AlertDialog(
@@ -338,7 +334,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         if (val) {
                           setState(() {
                             _type = 'expense';
-                            _category = _expenseCategories.first;
+                            _category = finance.expenseCategories.first;
                           });
                         }
                       },
@@ -354,7 +350,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         if (val) {
                           setState(() {
                             _type = 'income';
-                            _category = _incomeCategories.first;
+                            _category = finance.incomeCategories.first;
                           });
                         }
                       },

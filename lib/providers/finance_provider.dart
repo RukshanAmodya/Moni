@@ -22,6 +22,49 @@ class FinanceProvider with ChangeNotifier {
   String get currency => _currency;
   bool get pinEnabled => _pinEnabled;
 
+  List<String> _incomeCategories = ['Salary', 'Investment', 'Other'];
+  List<String> _expenseCategories = ['Food', 'Transport', 'Bills', 'Shopping', 'Other'];
+
+  List<String> get incomeCategories => _incomeCategories;
+  List<String> get expenseCategories => _expenseCategories;
+
+  void addCategory(String type, String category) {
+    if (type == 'income') {
+      if (!_incomeCategories.contains(category)) {
+        _incomeCategories.add(category);
+      }
+    } else {
+      if (!_expenseCategories.contains(category)) {
+        _expenseCategories.add(category);
+      }
+    }
+    notifyListeners();
+  }
+
+  void deleteCategory(String type, String category) {
+    if (type == 'income') {
+      _incomeCategories.remove(category);
+    } else {
+      _expenseCategories.remove(category);
+    }
+    notifyListeners();
+  }
+
+  Future<void> addWallet(Wallet wallet) async {
+    _wallets.add(wallet);
+    await _storage.saveWallets(_wallets);
+    notifyListeners();
+  }
+
+  Future<void> deleteWallet(String id) async {
+    _wallets.removeWhere((w) => w.id == id);
+    // Also remove or update transactions with this wallet
+    _transactions.removeWhere((tx) => tx.walletId == id);
+    await _storage.saveTransactions(_transactions);
+    await _storage.saveWallets(_wallets);
+    notifyListeners();
+  }
+
   double get totalBalance {
     double bal = 0;
     for (var w in _wallets) {
