@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/finance_provider.dart';
+import '../services/biometric_service.dart';
 import '../theme/moni_theme.dart';
 
 class PinLockScreen extends StatefulWidget {
@@ -18,10 +19,35 @@ class PinLockScreen extends StatefulWidget {
 }
 
 class _PinLockScreenState extends State<PinLockScreen> {
+  final BiometricService _biometricService = BiometricService();
   String _enteredPin = '';
   String _confirmPin = '';
   bool _isConfirming = false;
   String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-prompt biometrics if unlocking and enabled
+    if (!widget.isSettingPin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _checkBiometrics();
+      });
+    }
+  }
+
+  void _checkBiometrics() async {
+    final finance = Provider.of<FinanceProvider>(context, listen: false);
+    if (finance.biometricEnabled) {
+      final available = await _biometricService.isBiometricAvailable();
+      if (available) {
+        final authenticated = await _biometricService.authenticate();
+        if (authenticated && mounted) {
+          if (widget.onSuccess != null) widget.onSuccess!();
+        }
+      }
+    }
+  }
 
   void _onNumberTap(int val) {
     if (_enteredPin.length < 4) {
@@ -30,7 +56,10 @@ class _PinLockScreenState extends State<PinLockScreen> {
         _errorMessage = '';
       });
       if (_enteredPin.length == 4) {
-        _handlePinSubmit();
+        // Let UI finish rendering before processing to avoid keyboard freeze lag
+        Future.delayed(const Duration(milliseconds: 150), () {
+          _handlePinSubmit();
+        });
       }
     }
   }
@@ -45,11 +74,11 @@ class _PinLockScreenState extends State<PinLockScreen> {
   }
 
   void _handlePinSubmit() async {
+    if (!mounted) return;
     final provider = Provider.of<FinanceProvider>(context, listen: false);
 
     if (widget.isSettingPin) {
       if (!_isConfirming) {
-        // Switch to confirmation step
         setState(() {
           _confirmPin = _enteredPin;
           _enteredPin = '';
@@ -87,6 +116,8 @@ class _PinLockScreenState extends State<PinLockScreen> {
     if (widget.isSettingPin) {
       titleText = _isConfirming ? 'Confirm PIN' : 'Create PIN';
     }
+
+    final provider = Provider.of<FinanceProvider>(context);
 
     return Scaffold(
       backgroundColor: MoniTheme.background,
@@ -149,10 +180,16 @@ class _PinLockScreenState extends State<PinLockScreen> {
                 itemCount: 12,
                 itemBuilder: (context, index) {
                   if (index == 9) {
-                    return const SizedBox.shrink(); // Empty bottom-left
+                    // Biometric quick trigger if enabled
+                    if (!widget.isSettingPin && provider.biometricEnabled) {
+                      return IconButton(
+                        onPressed: _checkBiometrics,
+                        icon: const Icon(Icons.fingerprint, size: 36, color: MoniTheme.sageGreen),
+                      );
+                    }
+                    return const SizedBox.shrink();
                   }
                   if (index == 11) {
-                    // Backspace
                     return IconButton(
                       onPressed: _onBackspace,
                       icon: const Icon(Icons.backspace_outlined, size: 28, color: MoniTheme.darkText),

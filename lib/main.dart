@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'providers/finance_provider.dart';
+import 'providers/auth_provider.dart';
 import 'theme/moni_theme.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/navigation_holder.dart';
@@ -10,6 +12,13 @@ import 'screens/pin_lock_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    // If running in environment without correct configs, fail gracefully
+  }
+
   final financeProvider = FinanceProvider();
   await financeProvider.init();
 
@@ -17,8 +26,11 @@ void main() async {
   final hasSeenOnboarding = prefs.getBool('moni_onboarding_seen') ?? false;
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => financeProvider,
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => financeProvider),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
       child: MyApp(hasSeenOnboarding: hasSeenOnboarding),
     ),
   );
@@ -38,7 +50,6 @@ class MyApp extends StatelessWidget {
       homeWidget = PinLockScreen(
         isSettingPin: false,
         onSuccess: () {
-          // Once authenticated, go to appropriate screen
           if (hasSeenOnboarding) {
             _goToNavigation(context);
           } else {

@@ -2,14 +2,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:moni/main.dart';
 import 'package:moni/providers/finance_provider.dart';
+import 'package:moni/providers/auth_provider.dart';
 
 void main() {
   testWidgets('Onboarding screen title smoke test', (WidgetTester tester) async {
-    final provider = FinanceProvider();
-    // Build our app and trigger a frame.
+    final financeProvider = FinanceProvider();
+    
     await tester.pumpWidget(
-      ChangeNotifierProvider(
-        create: (_) => provider,
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => financeProvider),
+          ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ],
         child: const MyApp(hasSeenOnboarding: false),
       ),
     );

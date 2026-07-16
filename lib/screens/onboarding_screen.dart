@@ -1,9 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/moni_theme.dart';
 import 'navigation_holder.dart';
 
-class OnboardingScreen extends StatelessWidget {
+class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
+
+  @override
+  State<OnboardingScreen> createState() => _OnboardingScreenState();
+}
+
+class _OnboardingScreenState extends State<OnboardingScreen> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  final List<Map<String, String>> _onboardingData = [
+    {
+      'title': 'TURN INCOME INTO\nSMART INVESTMENTS',
+      'description': 'Welcome to Moni. Keep track of daily expenses, manage wallets, and save money effortlessly with an elegant design.',
+    },
+    {
+      'title': 'TRACK DAILY\nEXPENSES IN A CLICK',
+      'description': 'Log income or expense instantly. Categorize them into Food, Bills, Shopping, or create custom categories in Settings.',
+    },
+    {
+      'title': 'SET BUDGETS &\nWARNING NOTIFICATIONS',
+      'description': 'Set monthly budget limits for each category. Moni alerts you with warning badges if you spend above 80% of your limit.',
+    },
+    {
+      'title': 'SECURE BIOMETRICS\n& CLOUD SYNCING',
+      'description': 'Activate Fingerprint/PIN lock to secure financial data. Sign in with Firebase to automatically sync and backup your data.',
+    },
+  ];
+
+  void _finishOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('moni_onboarding_seen', true);
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const NavigationHolder()),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +52,7 @@ class OnboardingScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // Header
+            // Header Title
             Text(
               'MONI',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -23,86 +61,66 @@ class OnboardingScreen extends StatelessWidget {
                     letterSpacing: 4,
                   ),
             ),
-            const SizedBox(height: 30),
-            // Graphic Area (Minimalist Wealth Graph / Illustration)
+            const SizedBox(height: 20),
+
+            // Page View for Graphic/Illustrations
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0),
-                child: Center(
-                  child: Container(
-                    width: double.infinity,
-                    height: 280,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(32),
-                      border: Border.all(color: Colors.white.withOpacity(0.2)),
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Background concentric circles
-                        for (int i = 1; i <= 3; i++)
-                          Container(
-                            width: i * 80.0,
-                            height: i * 80.0,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.08),
-                                width: 1.5,
-                              ),
-                            ),
-                          ),
-                        // Clean line chart representing growing wealth
-                        CustomPaint(
-                          size: const Size(200, 100),
-                          painter: OnboardingChartPainter(),
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (int index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemCount: _onboardingData.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                    child: Center(
+                      child: Container(
+                        width: double.infinity,
+                        height: 260,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(color: Colors.white.withOpacity(0.2)),
                         ),
-                        // Floating Glassmorphic balance card
-                        Positioned(
-                          top: 40,
-                          right: 30,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.85),
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 10,
-                                ),
-                              ],
-                            ),
-                            child: const Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 6,
-                                  backgroundColor: MoniTheme.sageGreen,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  '+ LKR 45,000',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: MoniTheme.darkText,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Interactive/dynamic vector shapes representing features
+                            _buildIllustrationForPage(index),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
+                  );
+                },
+              ),
+            ),
+
+            // Indicators
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                _onboardingData.length,
+                (index) => Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: _currentPage == index ? 24 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: _currentPage == index ? Colors.white : Colors.white.withOpacity(0.4),
                   ),
                 ),
               ),
             ),
-            // Bottom Info Card (Similar to the white container in Screen 1)
+            const SizedBox(height: 24),
+
+            // Bottom card with text details
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(28, 40, 28, 48),
+              padding: const EdgeInsets.fromLTRB(28, 36, 28, 48),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -114,58 +132,70 @@ class OnboardingScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    'TURN INCOME INTO\nSMART INVESTMENTS',
-                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          fontSize: 28,
-                          height: 1.2,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                        ),
+                  // Title
+                  SizedBox(
+                    height: 80,
+                    child: Text(
+                      _onboardingData[_currentPage]['title']!,
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            fontSize: 26,
+                            height: 1.2,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                          ),
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Manage your money smartly, keep track of daily expenses, and achieve your saving goals effortlessly.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: 15,
-                          height: 1.5,
-                        ),
+                  const SizedBox(height: 12),
+                  // Description
+                  SizedBox(
+                    height: 70,
+                    child: Text(
+                      _onboardingData[_currentPage]['description']!,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 14,
+                            height: 1.5,
+                          ),
+                    ),
                   ),
-                  const SizedBox(height: 36),
-                  // Button "Get Started" (Pill with nested arrow icon)
+                  const SizedBox(height: 28),
+
+                  // Button
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(
-                          builder: (_) => const NavigationHolder(),
-                        ),
-                      );
+                      if (_currentPage < _onboardingData.length - 1) {
+                        _pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      } else {
+                        _finishOnboarding();
+                      }
                     },
                     child: Container(
-                      height: 60,
+                      height: 56,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: MoniTheme.blackAccent,
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(28),
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            height: 44,
+                            height: 40,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(22),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             alignment: Alignment.center,
-                            child: const Text(
-                              'Get Started',
-                              style: TextStyle(
+                            child: Text(
+                              _currentPage == _onboardingData.length - 1 ? 'Get Started' : 'Next Step',
+                              style: const TextStyle(
                                 color: MoniTheme.blackAccent,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 15,
                               ),
                             ),
                           ),
@@ -190,6 +220,79 @@ class OnboardingScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildIllustrationForPage(int index) {
+    switch (index) {
+      case 0:
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            for (int i = 1; i <= 2; i++)
+              Container(
+                width: i * 110.0,
+                height: i * 110.0,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white.withOpacity(0.08), width: 1.5),
+                ),
+              ),
+            CustomPaint(
+              size: const Size(180, 80),
+              painter: OnboardingChartPainter(),
+            ),
+          ],
+        );
+      case 1:
+        return const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.add_circle_outline_rounded, color: Colors.white, size: 64),
+              SizedBox(height: 12),
+              Text(
+                'LKR 1,500.00 Saved',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ],
+          ),
+        );
+      case 2:
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 64),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'Food Budget: 82% Used!',
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        );
+      default:
+        return const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.cloud_done_outlined, color: Colors.white, size: 64),
+              SizedBox(height: 12),
+              Text(
+                'Secure Sync Enabled',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+            ],
+          ),
+        );
+    }
+  }
 }
 
 class OnboardingChartPainter extends CustomPainter {
@@ -198,12 +301,6 @@ class OnboardingChartPainter extends CustomPainter {
     final paintLine = Paint()
       ..color = Colors.white
       ..strokeWidth = 3
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final paintShadow = Paint()
-      ..color = Colors.white.withOpacity(0.1)
-      ..strokeWidth = 10
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
@@ -223,15 +320,8 @@ class OnboardingChartPainter extends CustomPainter {
     );
     path.lineTo(size.width, size.height * 0.15);
 
-    // Draw shadow first
-    canvas.drawPath(path, paintShadow);
-    // Draw foreground line
     canvas.drawPath(path, paintLine);
-
-    // Draw end indicator dot
-    final dotPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+    final dotPaint = Paint()..color = Colors.white..style = PaintingStyle.fill;
     canvas.drawCircle(Offset(size.width, size.height * 0.15), 6, dotPaint);
   }
 

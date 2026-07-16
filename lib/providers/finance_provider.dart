@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/finance_models.dart';
 import '../services/storage_service.dart';
 
@@ -14,6 +16,7 @@ class FinanceProvider with ChangeNotifier {
   String _currency = 'LKR';
   bool _pinEnabled = false;
   String _pinHash = '';
+  bool _biometricEnabled = false;
 
   List<Transaction> get transactions => _transactions;
   List<Budget> get budgets => _budgets;
@@ -21,6 +24,7 @@ class FinanceProvider with ChangeNotifier {
   List<Wallet> get wallets => _wallets;
   String get currency => _currency;
   bool get pinEnabled => _pinEnabled;
+  bool get biometricEnabled => _biometricEnabled;
 
   List<String> _incomeCategories = ['Salary', 'Investment', 'Other'];
   List<String> _expenseCategories = ['Food', 'Transport', 'Bills', 'Shopping', 'Other'];
@@ -38,7 +42,7 @@ class FinanceProvider with ChangeNotifier {
         _expenseCategories.add(category);
       }
     }
-    notifyListeners();
+    _notifyAndSync();
   }
 
   void deleteCategory(String type, String category) {
@@ -47,22 +51,21 @@ class FinanceProvider with ChangeNotifier {
     } else {
       _expenseCategories.remove(category);
     }
-    notifyListeners();
+    _notifyAndSync();
   }
 
   Future<void> addWallet(Wallet wallet) async {
     _wallets.add(wallet);
     await _storage.saveWallets(_wallets);
-    notifyListeners();
+    _notifyAndSync();
   }
 
   Future<void> deleteWallet(String id) async {
     _wallets.removeWhere((w) => w.id == id);
-    // Also remove or update transactions with this wallet
     _transactions.removeWhere((tx) => tx.walletId == id);
     await _storage.saveTransactions(_transactions);
     await _storage.saveWallets(_wallets);
-    notifyListeners();
+    _notifyAndSync();
   }
 
   double get totalBalance {
@@ -97,6 +100,7 @@ class FinanceProvider with ChangeNotifier {
   Future<void> init() async {
     _currency = await _storage.getCurrency();
     _pinEnabled = await _storage.isPinEnabled();
+    _biometricEnabled = await _storage.isBiometricEnabled();
     _pinHash = await _storage.getPinHash();
     _transactions = await _storage.loadTransactions();
     _budgets = await _storage.loadBudgets();
@@ -105,6 +109,12 @@ class FinanceProvider with ChangeNotifier {
 
     await processRecurringTransactions();
     notifyListeners();
+  }
+
+  // Helper to notify listeners and sync automatically to Firestore
+  void _notifyAndSync() {
+    notifyListeners();
+    syncToCloud();
   }
 
   // Helper to hash PIN
@@ -123,7 +133,7 @@ class FinanceProvider with ChangeNotifier {
     await _storage.setPinEnabled(true);
     _pinHash = hash;
     _pinEnabled = true;
-    notifyListeners();
+    _notifyAndSync();
   }
 
   Future<void> disablePin() async {
@@ -131,13 +141,19 @@ class FinanceProvider with ChangeNotifier {
     await _storage.setPinEnabled(false);
     _pinHash = '';
     _pinEnabled = false;
-    notifyListeners();
+    _notifyAndSync();
+  }
+
+  Future<void> updateBiometricEnabled(bool val) async {
+    await _storage.setBiometricEnabled(val);
+    _biometricEnabled = val;
+    _notifyAndSync();
   }
 
   Future<void> updateCurrency(String newCurrency) async {
     await _storage.setCurrency(newCurrency);
     _currency = newCurrency;
-    notifyListeners();
+    _notifyAndSync();
   }
 
   // Transaction Actions
@@ -159,7 +175,7 @@ class FinanceProvider with ChangeNotifier {
     }
 
     await _storage.saveTransactions(_transactions);
-    notifyListeners();
+    _notifyAndSync();
   }
 
   Future<void> deleteTransaction(String id) async {
@@ -182,7 +198,7 @@ class FinanceProvider with ChangeNotifier {
 
       _transactions.removeAt(idx);
       await _storage.saveTransactions(_transactions);
-      notifyListeners();
+      _notifyAndSync();
     }
   }
 
@@ -195,13 +211,13 @@ class FinanceProvider with ChangeNotifier {
       _budgets.add(Budget(category: category, limitAmount: limit));
     }
     await _storage.saveBudgets(_budgets);
-    notifyListeners();
+    _notifyAndSync();
   }
 
   Future<void> deleteBudget(String category) async {
     _budgets.removeWhere((b) => b.category == category);
     await _storage.saveBudgets(_budgets);
-    notifyListeners();
+    _notifyAndSync();
   }
 
   // Check budget warnings (returns warnings Map or list)
@@ -233,7 +249,7 @@ class FinanceProvider with ChangeNotifier {
   Future<void> addGoal(SavingsGoal goal) async {
     _goals.add(goal);
     await _storage.saveGoals(_goals);
-    notifyListeners();
+    _notifyAndSync();
   }
 
   Future<void> updateGoalProgress(String id, double addAmount) async {
@@ -242,8 +258,6 @@ class FinanceProvider with ChangeNotifier {
       final goal = _goals[idx];
       _goals[idx] = goal.copyWith(currentAmount: goal.currentAmount + addAmount);
 
-      // We subtract this amount from the Cash Wallet as standard goal contribution (unless specific account selected, let's default to cash/bank)
-      // For simplicity, contribute from Bank Account or Cash Wallet
       final cashIdx = _wallets.indexWhere((w) => w.id == 'cash');
       if (cashIdx != -1) {
         _wallets[cashIdx] = _wallets[cashIdx].copyWith(balance: _wallets[cashIdx].balance - addAmount);
@@ -251,14 +265,14 @@ class FinanceProvider with ChangeNotifier {
       }
 
       await _storage.saveGoals(_goals);
-      notifyListeners();
+      _notifyAndSync();
     }
   }
 
   Future<void> deleteGoal(String id) async {
     _goals.removeWhere((g) => g.id == id);
     await _storage.saveGoals(_goals);
-    notifyListeners();
+    _notifyAndSync();
   }
 
   // Wallet Actions
@@ -267,7 +281,7 @@ class FinanceProvider with ChangeNotifier {
     if (idx != -1) {
       _wallets[idx] = _wallets[idx].copyWith(balance: newBalance);
       await _storage.saveWallets(_wallets);
-      notifyListeners();
+      _notifyAndSync();
     }
   }
 
@@ -284,12 +298,9 @@ class FinanceProvider with ChangeNotifier {
     final daysDifference = now.difference(lastCheck).inDays;
 
     if (daysDifference >= 1) {
-      // Find all recurring template transactions
-      // To simulate auto-adding subscription transactions:
       final recurringTemplates = _transactions.where((t) => t.isRecurring).toList();
 
       for (var template in recurringTemplates) {
-        // Find if we should add new instances
         DateTime nextDate = template.date;
         while (true) {
           if (template.recurrenceInterval == 'daily') {
@@ -297,7 +308,6 @@ class FinanceProvider with ChangeNotifier {
           } else if (template.recurrenceInterval == 'weekly') {
             nextDate = nextDate.add(const Duration(days: 7));
           } else if (template.recurrenceInterval == 'monthly') {
-            // approximation
             nextDate = DateTime(nextDate.year, nextDate.month + 1, nextDate.day);
           } else {
             break;
@@ -308,7 +318,6 @@ class FinanceProvider with ChangeNotifier {
           }
 
           if (nextDate.isAfter(lastCheck)) {
-            // Add a duplicate transaction for this recurrence
             final newTx = Transaction(
               id: DateTime.now().millisecondsSinceEpoch.toString() + '_' + nextDate.millisecondsSinceEpoch.toString(),
               title: template.title,
@@ -317,12 +326,11 @@ class FinanceProvider with ChangeNotifier {
               category: template.category,
               date: nextDate,
               walletId: template.walletId,
-              isRecurring: false, // Instances themselves are not templates
+              isRecurring: false,
               recurrenceInterval: 'none',
             );
             _transactions.add(newTx);
 
-            // Update Wallet
             final walletIdx = _wallets.indexWhere((w) => w.id == newTx.walletId);
             if (walletIdx != -1) {
               final wallet = _wallets[walletIdx];
@@ -366,5 +374,52 @@ class FinanceProvider with ChangeNotifier {
       );
     }
     return buffer.toString();
+  }
+
+  // Cloud Sync to Firestore
+  Future<void> syncToCloud() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final backupData = await exportBackup();
+        final Map<String, dynamic> dataMap = jsonDecode(backupData);
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .set({
+              'data': dataMap,
+              'synced_at': FieldValue.serverTimestamp(),
+            });
+      } catch (e) {
+        // Silently fail or handle log
+      }
+    }
+  }
+
+  // Cloud Restore from Firestore
+  Future<bool> syncFromCloud() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        if (doc.exists && doc.data() != null) {
+          final data = doc.data()!['data'];
+          if (data != null) {
+            final jsonStr = jsonEncode(data);
+            final success = await importBackup(jsonStr);
+            if (success) {
+              notifyListeners();
+              return true;
+            }
+          }
+        }
+      } catch (e) {
+        // Silently fail or log
+      }
+    }
+    return false;
   }
 }

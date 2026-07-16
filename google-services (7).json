@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "984155296517",
+    "firebase_url": "https://moni-lk-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "moni-lk",
+    "storage_bucket": "moni-lk.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:984155296517:android:55658938ebf0e916f79d6c",
+        "android_client_info": {
+          "package_name": "com.questrax.moni"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "984155296517-o5v55qb5ia99or78divatoj01hunam56.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_0fhLr7czDAHfjND6hsIE31hlQsH-eAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "984155296517-o5v55qb5ia99or78divatoj01hunam56.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

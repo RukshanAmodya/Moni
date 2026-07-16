@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/finance_provider.dart';
+import '../providers/auth_provider.dart';
 import '../theme/moni_theme.dart';
 import 'pin_lock_screen.dart';
 import '../models/finance_models.dart';
@@ -11,13 +12,38 @@ import 'recurring_subscriptions_screen.dart';
 import 'category_customizer_screen.dart';
 import 'reports_export_screen.dart';
 import 'financial_tips_screen.dart';
+import 'login_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
+  // Premium custom dialog box helper
+  void _showPremiumDialog(
+    BuildContext context, {
+    required String title,
+    required Widget content,
+    required List<Widget> actions,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.w900, color: MoniTheme.darkText, fontSize: 20),
+        ),
+        content: content,
+        actions: actions,
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final finance = Provider.of<FinanceProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       backgroundColor: MoniTheme.background,
@@ -34,13 +60,67 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Account & Preferences
+              // Cloud Sync Status Card (Custom Restyled Header)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: MoniTheme.premiumCardDecoration,
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: auth.isAuthenticated ? MoniTheme.sageGreen.withOpacity(0.15) : Colors.grey.shade100,
+                      child: Icon(
+                        auth.isAuthenticated ? Icons.cloud_done_outlined : Icons.cloud_off_outlined,
+                        color: auth.isAuthenticated ? MoniTheme.sageGreen : Colors.grey,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            auth.isAuthenticated ? 'Cloud Sync Connected' : 'Sync Offline Mode',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          Text(
+                            auth.isAuthenticated ? '${auth.user?.email}' : 'Sign in to backup data to cloud',
+                            style: const TextStyle(fontSize: 12, color: MoniTheme.mutedText),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: auth.isAuthenticated ? Colors.redAccent.withOpacity(0.1) : MoniTheme.sageGreen.withOpacity(0.15),
+                        foregroundColor: auth.isAuthenticated ? Colors.redAccent : MoniTheme.sageGreen,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () {
+                        if (auth.isAuthenticated) {
+                          auth.signOut();
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          );
+                        }
+                      },
+                      child: Text(auth.isAuthenticated ? 'Logout' : 'Connect'),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Preferences Section
               _buildSectionTitle(context, 'Preferences'),
               Container(
                 decoration: MoniTheme.premiumCardDecoration,
                 child: Column(
                   children: [
-                    // Currency Selector
                     ListTile(
                       title: const Text('Primary Currency'),
                       trailing: DropdownButton<String>(
@@ -59,7 +139,6 @@ class SettingsScreen extends StatelessWidget {
                       ),
                     ),
                     const Divider(height: 1, indent: 16, endIndent: 16),
-                    // Budget Management Button
                     ListTile(
                       title: const Text('Configure Budgets'),
                       trailing: const Icon(Icons.chevron_right),
@@ -98,26 +177,42 @@ class SettingsScreen extends StatelessWidget {
               _buildSectionTitle(context, 'Security'),
               Container(
                 decoration: MoniTheme.premiumCardDecoration,
-                child: SwitchListTile(
-                  title: const Text('PIN Code Protection'),
-                  subtitle: const Text('Secure your financial data'),
-                  activeColor: MoniTheme.sageGreen,
-                  value: finance.pinEnabled,
-                  onChanged: (bool value) {
-                    if (value) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PinLockScreen(
-                            isSettingPin: true,
-                            onSuccess: () => Navigator.pop(context),
-                          ),
-                        ),
-                      );
-                    } else {
-                      finance.disablePin();
-                    }
-                  },
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      title: const Text('PIN Code Protection'),
+                      subtitle: const Text('Secure your financial data'),
+                      activeColor: MoniTheme.sageGreen,
+                      value: finance.pinEnabled,
+                      onChanged: (bool value) {
+                        if (value) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PinLockScreen(
+                                isSettingPin: true,
+                                onSuccess: () => Navigator.pop(context),
+                              ),
+                            ),
+                          );
+                        } else {
+                          finance.disablePin();
+                        }
+                      },
+                    ),
+                    if (finance.pinEnabled) ...[
+                      const Divider(height: 1, indent: 16, endIndent: 16),
+                      SwitchListTile(
+                        title: const Text('Biometric Fingerprint Lock'),
+                        subtitle: const Text('Unlock using device biometric scans'),
+                        activeColor: MoniTheme.sageGreen,
+                        value: finance.biometricEnabled,
+                        onChanged: (bool value) {
+                          finance.updateBiometricEnabled(value);
+                        },
+                      ),
+                    ],
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
@@ -179,44 +274,6 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Monetization & Support
-              _buildSectionTitle(context, 'Support Moni'),
-              Container(
-                decoration: MoniTheme.premiumCardDecoration,
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Donation / Buy Me a Coffee',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Moni is completely free. If you find it useful, consider supporting our solo developer with a donation.',
-                      style: TextStyle(fontSize: 13, color: MoniTheme.mutedText),
-                    ),
-                    const SizedBox(height: 12),
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: MoniTheme.sageGreen,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size.fromHeight(48),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Thank you! Redirecting to BuyMeACoffee/PayPal mock.')),
-                        );
-                      },
-                      icon: const Icon(Icons.coffee_outlined),
-                      label: const Text('Donate Now', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-
               // Non-intrusive Ad/Affiliate banner
               Container(
                 width: double.infinity,
@@ -273,93 +330,107 @@ class SettingsScreen extends StatelessWidget {
   }
 
   void _showConfigureBudgetsDialog(BuildContext context, FinanceProvider finance) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        final categories = ['Food', 'Transport', 'Bills', 'Shopping'];
-        final Map<String, TextEditingController> controllers = {};
+    final categories = ['Food', 'Transport', 'Bills', 'Shopping'];
+    final Map<String, TextEditingController> controllers = {};
 
-        for (var cat in categories) {
-          final budget = finance.budgets.firstWhere((b) => b.category == cat, orElse: () => Budget(category: cat, limitAmount: 0.0));
-          controllers[cat] = TextEditingController(text: budget.limitAmount > 0 ? budget.limitAmount.toString() : '');
-        }
+    for (var cat in categories) {
+      final budget = finance.budgets.firstWhere((b) => b.category == cat, orElse: () => Budget(category: cat, limitAmount: 0.0));
+      controllers[cat] = TextEditingController(text: budget.limitAmount > 0 ? budget.limitAmount.toString() : '');
+    }
 
-        return AlertDialog(
-          title: const Text('Category Budgets'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: categories.map((cat) {
-              return TextField(
+    _showPremiumDialog(
+      context,
+      title: 'Category Budgets',
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: categories.map((cat) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: TextField(
                 controller: controllers[cat],
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: '$cat Limit (${finance.currency})',
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                 ),
-              );
-            }).toList(),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel', style: TextStyle(color: MoniTheme.mutedText)),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: MoniTheme.sageGreen,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 0,
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                for (var cat in categories) {
-                  final limit = double.tryParse(controllers[cat]!.text) ?? 0.0;
-                  if (limit > 0) {
-                    finance.setBudget(cat, limit);
-                  } else {
-                    finance.deleteBudget(cat);
-                  }
-                }
-                Navigator.pop(context);
-              },
-              child: const Text('Save', style: TextStyle(color: MoniTheme.sageGreen)),
-            ),
-          ],
-        );
-      },
+          onPressed: () {
+            for (var cat in categories) {
+              final limit = double.tryParse(controllers[cat]!.text) ?? 0.0;
+              if (limit > 0) {
+                finance.setBudget(cat, limit);
+              } else {
+                finance.deleteBudget(cat);
+              }
+            }
+            Navigator.pop(context);
+          },
+          child: const Text('Save Settings', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        ),
+      ],
     );
   }
 
   void _showImportBackupDialog(BuildContext context, FinanceProvider finance) {
     final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Paste Backup Data'),
-        content: TextField(
-          controller: controller,
-          maxLines: 6,
-          decoration: const InputDecoration(
-            hintText: 'Paste backup JSON string here...',
-            border: OutlineInputBorder(),
-          ),
+    _showPremiumDialog(
+      context,
+      title: 'Paste Backup Data',
+      content: TextField(
+        controller: controller,
+        maxLines: 4,
+        decoration: InputDecoration(
+          hintText: 'Paste backup JSON string here...',
+          filled: true,
+          fillColor: Colors.grey.shade50,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final jsonStr = controller.text.trim();
-              if (jsonStr.isNotEmpty) {
-                final success = await finance.importBackup(jsonStr);
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(success ? 'Backup imported successfully!' : 'Invalid backup data format.'),
-                    backgroundColor: success ? Colors.green : Colors.redAccent,
-                  ),
-                );
-              }
-            },
-            child: const Text('Import', style: TextStyle(color: MoniTheme.sageGreen)),
-          ),
-        ],
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel', style: TextStyle(color: MoniTheme.mutedText)),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: MoniTheme.sageGreen,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 0,
+          ),
+          onPressed: () async {
+            final jsonStr = controller.text.trim();
+            if (jsonStr.isNotEmpty) {
+              final success = await finance.importBackup(jsonStr);
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(success ? 'Backup imported successfully!' : 'Invalid backup data format.'),
+                  backgroundColor: success ? Colors.green : Colors.redAccent,
+                ),
+              );
+            }
+          },
+          child: const Text('Import Backup', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        ),
+      ],
     );
   }
 }

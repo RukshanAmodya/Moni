@@ -130,6 +130,8 @@ class StorageService {
     await prefs.setString(keyCurrency, value);
   }
 
+  static const String keyBiometricEnabled = 'moni_biometric_enabled';
+
   Future<bool> isPinEnabled() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(keyPinEnabled) ?? false;
@@ -138,6 +140,16 @@ class StorageService {
   Future<void> setPinEnabled(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(keyPinEnabled, value);
+  }
+
+  Future<bool> isBiometricEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(keyBiometricEnabled) ?? false;
+  }
+
+  Future<void> setBiometricEnabled(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(keyBiometricEnabled, value);
   }
 
   Future<String> getPinHash() async {
