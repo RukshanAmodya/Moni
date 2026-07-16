@@ -22,6 +22,8 @@ class FinanceProvider with ChangeNotifier {
   double _overallWeeklyBudget = 0.0;
   double _overallDailyBudget = 0.0;
   double _piggyBankBalance = 0.0;
+  bool _incognitoEnabled = false;
+  bool _selfDestructEnabled = false;
 
   List<Transaction> get transactions => _transactions;
   List<Budget> get budgets => _budgets;
@@ -34,6 +36,8 @@ class FinanceProvider with ChangeNotifier {
   double get overallWeeklyBudget => _overallWeeklyBudget;
   double get overallDailyBudget => _overallDailyBudget;
   double get piggyBankBalance => _piggyBankBalance;
+  bool get incognitoEnabled => _incognitoEnabled;
+  bool get selfDestructEnabled => _selfDestructEnabled;
 
   List<String> _incomeCategories = ['Salary', 'Investment', 'Other'];
   List<String> _expenseCategories = ['Food', 'Transport', 'Bills', 'Shopping', 'Other'];
@@ -119,9 +123,47 @@ class FinanceProvider with ChangeNotifier {
     _overallWeeklyBudget = await _storage.getOverallWeeklyBudget();
     _overallDailyBudget = await _storage.getOverallDailyBudget();
     _piggyBankBalance = await _storage.getPiggyBankBalance();
+    _incognitoEnabled = await _storage.isIncognitoEnabled();
+    _selfDestructEnabled = await _storage.isSelfDestructEnabled();
 
     await processRecurringTransactions();
     notifyListeners();
+  }
+
+  Future<void> updateIncognitoEnabled(bool val) async {
+    await _storage.setIncognitoEnabled(val);
+    _incognitoEnabled = val;
+    _notifyAndSync();
+  }
+
+  Future<void> updateSelfDestructEnabled(bool val) async {
+    await _storage.setSelfDestructEnabled(val);
+    _selfDestructEnabled = val;
+    _notifyAndSync();
+  }
+
+  Future<void> wipeAllData() async {
+    await _storage.saveTransactions([]);
+    await _storage.saveBudgets([]);
+    await _storage.saveGoals([]);
+    await _storage.saveWallets([
+      Wallet(id: 'cash', name: 'Cash Wallet', balance: 0.0, type: 'Cash'),
+      Wallet(id: 'bank', name: 'Bank Account', balance: 0.0, type: 'Bank'),
+      Wallet(id: 'card', name: 'Credit Card', balance: 0.0, type: 'Card'),
+    ]);
+    await disablePin();
+    await updateBiometricEnabled(false);
+    await updateOverallMonthlyBudget(0.0);
+    await updateOverallWeeklyBudget(0.0);
+    await updateOverallDailyBudget(0.0);
+    _piggyBankBalance = 0.0;
+    await _storage.setPiggyBankBalance(0.0);
+    _incognitoEnabled = false;
+    await _storage.setIncognitoEnabled(false);
+    _selfDestructEnabled = false;
+    await _storage.setSelfDestructEnabled(false);
+
+    await init();
   }
 
   Future<void> addToPiggyBank(double amount) async {

@@ -206,6 +206,15 @@ class SettingsScreen extends StatelessWidget {
                         }
                       },
                     ),
+                    SwitchListTile(
+                      title: const Text('Incognito Mode'),
+                      subtitle: const Text('Hide account balances and cash values'),
+                      activeColor: MoniTheme.sageGreen,
+                      value: finance.incognitoEnabled,
+                      onChanged: (bool value) {
+                        finance.updateIncognitoEnabled(value);
+                      },
+                    ),
                     if (finance.pinEnabled) ...[
                       SwitchListTile(
                         title: const Text('Biometric Fingerprint Lock'),
@@ -214,6 +223,15 @@ class SettingsScreen extends StatelessWidget {
                         value: finance.biometricEnabled,
                         onChanged: (bool value) {
                           finance.updateBiometricEnabled(value);
+                        },
+                      ),
+                      SwitchListTile(
+                        title: const Text('Self-Destruct Security'),
+                        subtitle: const Text('Wipe all local data after 5 failed PIN attempts'),
+                        activeColor: MoniTheme.sageGreen,
+                        value: finance.selfDestructEnabled,
+                        onChanged: (bool value) {
+                          finance.updateSelfDestructEnabled(value);
                         },
                       ),
                     ],

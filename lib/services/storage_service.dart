@@ -170,9 +170,32 @@ class StorageService {
     return prefs.getDouble(keyOverallDailyBudget) ?? 0.0;
   }
 
+  static const String keyIncognitoEnabled = 'moni_incognito_enabled';
+  static const String keySelfDestructEnabled = 'moni_self_destruct_enabled';
+
   Future<void> setOverallDailyBudget(double val) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble(keyOverallDailyBudget, val);
+  }
+
+  Future<bool> isIncognitoEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(keyIncognitoEnabled) ?? false;
+  }
+
+  Future<void> setIncognitoEnabled(bool val) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(keyIncognitoEnabled, val);
+  }
+
+  Future<bool> isSelfDestructEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(keySelfDestructEnabled) ?? false;
+  }
+
+  Future<void> setSelfDestructEnabled(bool val) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(keySelfDestructEnabled, val);
   }
 
   static const String keyBiometricEnabled = 'moni_biometric_enabled';

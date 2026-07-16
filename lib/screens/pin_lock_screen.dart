@@ -24,6 +24,7 @@ class _PinLockScreenState extends State<PinLockScreen> {
   String _confirmPin = '';
   bool _isConfirming = false;
   String _errorMessage = '';
+  int _failedAttempts = 0;
 
   @override
   void initState() {
@@ -102,10 +103,20 @@ class _PinLockScreenState extends State<PinLockScreen> {
       if (isValid) {
         if (widget.onSuccess != null) widget.onSuccess!();
       } else {
-        setState(() {
-          _enteredPin = '';
-          _errorMessage = 'Incorrect PIN. Try again.';
-        });
+        _failedAttempts++;
+        if (provider.selfDestructEnabled && _failedAttempts >= 5) {
+          await provider.wipeAllData();
+          setState(() {
+            _enteredPin = '';
+            _failedAttempts = 0;
+            _errorMessage = 'Wiped all data due to 5 failed PIN attempts!';
+          });
+        } else {
+          setState(() {
+            _enteredPin = '';
+            _errorMessage = 'Incorrect PIN. Attempt $_failedAttempts/5';
+          });
+        }
       }
     }
   }

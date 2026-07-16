@@ -157,7 +157,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _buildMetricCard(
                     context,
                     title: 'Total Balance',
-                    value: '$currencySymbol ${NumberFormat('#,##0').format(finance.totalBalance)}',
+                    value: finance.incognitoEnabled ? '••••' : '$currencySymbol ${NumberFormat('#,##0').format(finance.totalBalance)}',
                     percentage: '+2.4%',
                     icon: Icons.account_balance_wallet_outlined,
                     iconBgColor: MoniTheme.sageGreenLight,
@@ -167,7 +167,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _buildMetricCard(
                     context,
                     title: "Month's Income",
-                    value: '$currencySymbol ${NumberFormat('#,##0').format(finance.thisMonthIncome)}',
+                    value: finance.incognitoEnabled ? '••••' : '$currencySymbol ${NumberFormat('#,##0').format(finance.thisMonthIncome)}',
                     percentage: '+12.5%',
                     icon: Icons.trending_up_rounded,
                     iconBgColor: const Color(0xFFE3EDF7),
@@ -176,7 +176,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _buildMetricCard(
                     context,
                     title: "Month's Expense",
-                    value: '$currencySymbol ${NumberFormat('#,##0').format(finance.thisMonthExpense)}',
+                    value: finance.incognitoEnabled ? '••••' : '$currencySymbol ${NumberFormat('#,##0').format(finance.thisMonthExpense)}',
                     percentage: '-5.2%',
                     icon: Icons.trending_down_rounded,
                     iconBgColor: const Color(0xFFFBEBEB),
@@ -339,7 +339,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            '$currencySymbol ${NumberFormat('#,##0.00').format(finance.piggyBankBalance)}',
+                            finance.incognitoEnabled ? '••••' : '$currencySymbol ${NumberFormat('#,##0.00').format(finance.piggyBankBalance)}',
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: MoniTheme.sageGreen),
                           ),
                           const SizedBox(height: 4),
@@ -710,8 +710,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               }
             },
             child: const Text('Add', style: TextStyle(color: MoniTheme.sageGreen)),
-          ),
         ],
+      ),
     );
   }
 
