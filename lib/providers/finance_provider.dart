@@ -18,6 +18,10 @@ class FinanceProvider with ChangeNotifier {
   String _pinHash = '';
   bool _biometricEnabled = false;
 
+  double _overallMonthlyBudget = 0.0;
+  double _overallWeeklyBudget = 0.0;
+  double _overallDailyBudget = 0.0;
+
   List<Transaction> get transactions => _transactions;
   List<Budget> get budgets => _budgets;
   List<SavingsGoal> get goals => _goals;
@@ -25,6 +29,9 @@ class FinanceProvider with ChangeNotifier {
   String get currency => _currency;
   bool get pinEnabled => _pinEnabled;
   bool get biometricEnabled => _biometricEnabled;
+  double get overallMonthlyBudget => _overallMonthlyBudget;
+  double get overallWeeklyBudget => _overallWeeklyBudget;
+  double get overallDailyBudget => _overallDailyBudget;
 
   List<String> _incomeCategories = ['Salary', 'Investment', 'Other'];
   List<String> _expenseCategories = ['Food', 'Transport', 'Bills', 'Shopping', 'Other'];
@@ -106,9 +113,30 @@ class FinanceProvider with ChangeNotifier {
     _budgets = await _storage.loadBudgets();
     _goals = await _storage.loadGoals();
     _wallets = await _storage.loadWallets();
+    _overallMonthlyBudget = await _storage.getOverallMonthlyBudget();
+    _overallWeeklyBudget = await _storage.getOverallWeeklyBudget();
+    _overallDailyBudget = await _storage.getOverallDailyBudget();
 
     await processRecurringTransactions();
     notifyListeners();
+  }
+
+  Future<void> updateOverallMonthlyBudget(double val) async {
+    await _storage.setOverallMonthlyBudget(val);
+    _overallMonthlyBudget = val;
+    _notifyAndSync();
+  }
+
+  Future<void> updateOverallWeeklyBudget(double val) async {
+    await _storage.setOverallWeeklyBudget(val);
+    _overallWeeklyBudget = val;
+    _notifyAndSync();
+  }
+
+  Future<void> updateOverallDailyBudget(double val) async {
+    await _storage.setOverallDailyBudget(val);
+    _overallDailyBudget = val;
+    _notifyAndSync();
   }
 
   // Helper to notify listeners and sync automatically to Firestore

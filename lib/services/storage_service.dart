@@ -125,9 +125,43 @@ class StorageService {
     return prefs.getString(keyCurrency) ?? 'LKR';
   }
 
+  static const String keyOverallMonthlyBudget = 'moni_overall_monthly_budget';
+  static const String keyOverallWeeklyBudget = 'moni_overall_weekly_budget';
+  static const String keyOverallDailyBudget = 'moni_overall_daily_budget';
+
   Future<void> setCurrency(String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(keyCurrency, value);
+  }
+
+  Future<double> getOverallMonthlyBudget() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(keyOverallMonthlyBudget) ?? 0.0;
+  }
+
+  Future<void> setOverallMonthlyBudget(double val) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(keyOverallMonthlyBudget, val);
+  }
+
+  Future<double> getOverallWeeklyBudget() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(keyOverallWeeklyBudget) ?? 0.0;
+  }
+
+  Future<void> setOverallWeeklyBudget(double val) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(keyOverallWeeklyBudget, val);
+  }
+
+  Future<double> getOverallDailyBudget() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getDouble(keyOverallDailyBudget) ?? 0.0;
+  }
+
+  Future<void> setOverallDailyBudget(double val) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(keyOverallDailyBudget, val);
   }
 
   static const String keyBiometricEnabled = 'moni_biometric_enabled';

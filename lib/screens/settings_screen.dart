@@ -144,6 +144,11 @@ class SettingsScreen extends StatelessWidget {
                       onTap: () => _showConfigureBudgetsDialog(context, finance),
                     ),
                     ListTile(
+                      title: const Text('Configure Overall Limits'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _showConfigureOverallLimitsDialog(context, finance),
+                    ),
+                    ListTile(
                       title: const Text('Wallets & Accounts'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletDetailsScreen())),
@@ -374,6 +379,86 @@ class SettingsScreen extends StatelessWidget {
             Navigator.pop(context);
           },
           child: const Text('Save Settings', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        ),
+      ],
+    );
+  }
+
+  void _showConfigureOverallLimitsDialog(BuildContext context, FinanceProvider finance) {
+    final monthlyController = TextEditingController(text: finance.overallMonthlyBudget > 0 ? finance.overallMonthlyBudget.toString() : '');
+    final weeklyController = TextEditingController(text: finance.overallWeeklyBudget > 0 ? finance.overallWeeklyBudget.toString() : '');
+    final dailyController = TextEditingController(text: finance.overallDailyBudget > 0 ? finance.overallDailyBudget.toString() : '');
+
+    _showPremiumDialog(
+      context,
+      title: 'Overall Budgets',
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: TextField(
+              controller: monthlyController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Monthly Limit (${finance.currency})',
+                filled: true,
+                fillColor: Colors.grey.shade50,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: TextField(
+              controller: weeklyController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Weekly Limit (${finance.currency})',
+                filled: true,
+                fillColor: Colors.grey.shade50,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: TextField(
+              controller: dailyController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'Daily Limit (${finance.currency})',
+                filled: true,
+                fillColor: Colors.grey.shade50,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel', style: TextStyle(color: MoniTheme.mutedText)),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: MoniTheme.sageGreen,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 0,
+          ),
+          onPressed: () {
+            final monthly = double.tryParse(monthlyController.text) ?? 0.0;
+            final weekly = double.tryParse(weeklyController.text) ?? 0.0;
+            final daily = double.tryParse(dailyController.text) ?? 0.0;
+
+            finance.updateOverallMonthlyBudget(monthly);
+            finance.updateOverallWeeklyBudget(weekly);
+            finance.updateOverallDailyBudget(daily);
+
+            Navigator.pop(context);
+          },
+          child: const Text('Save Limits', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         ),
       ],
     );
