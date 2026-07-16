@@ -710,6 +710,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               }
             },
             child: const Text('Add', style: TextStyle(color: MoniTheme.sageGreen)),
+          ),
         ],
       ),
     );
