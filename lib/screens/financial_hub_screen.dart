@@ -20,10 +20,7 @@ class _FinancialHubScreenState extends State<FinancialHubScreen> {
   double _totalInterest = 0.0;
 
   // Debt Tracker State
-  final List<Map<String, dynamic>> _debts = [
-    {'name': 'Amal (Friend)', 'amount': 15000.0, 'type': 'lend', 'due': '2026-08-10'},
-    {'name': 'Commercial Bank Loan', 'amount': 250000.0, 'type': 'borrow', 'due': '2030-12-01'},
-  ];
+  final List<Map<String, dynamic>> _debts = [];
   final _debtNameController = TextEditingController();
   final _debtAmountController = TextEditingController();
   String _debtType = 'lend';
@@ -34,10 +31,7 @@ class _FinancialHubScreenState extends State<FinancialHubScreen> {
 
   // Shopping List State
   double _shoppingBudget = 5000.0;
-  final List<Map<String, dynamic>> _shoppingItems = [
-    {'name': 'Milk powder', 'price': 1200.0, 'checked': false},
-    {'name': 'Rice (5kg)', 'price': 1100.0, 'checked': true},
-  ];
+  final List<Map<String, dynamic>> _shoppingItems = [];
   final _shoppingItemController = TextEditingController();
   final _shoppingPriceController = TextEditingController();
 

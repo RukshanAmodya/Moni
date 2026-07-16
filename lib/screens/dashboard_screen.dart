@@ -31,6 +31,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ? 1.0
         : dailyExpenses.values.reduce((a, b) => a > b ? a : b);
 
+    final double thisWeekTotal = dailyExpenses.values.fold(0.0, (a, b) => a + b);
+    final double lastWeekTotal = finance.transactions
+        .where((tx) {
+          if (tx.type != 'expense') return false;
+          final diff = DateTime.now().difference(tx.date).inDays;
+          return diff >= 7 && diff < 14;
+        })
+        .fold(0.0, (sum, tx) => sum + tx.amount);
+
+    double changePercent = 0.0;
+    if (lastWeekTotal > 0) {
+      changePercent = ((thisWeekTotal - lastWeekTotal) / lastWeekTotal) * 100;
+    } else if (thisWeekTotal > 0) {
+      changePercent = 100.0;
+    }
+    final bool isTrendUp = changePercent >= 0;
+
     return Scaffold(
       backgroundColor: MoniTheme.background,
       body: SafeArea(
@@ -224,17 +241,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: MoniTheme.pastelGreen.withOpacity(0.2),
+                            color: isTrendUp
+                                ? Colors.redAccent.withOpacity(0.1)
+                                : Colors.green.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Row(
+                          child: Row(
                             children: [
-                              Icon(Icons.arrow_upward, color: Colors.green, size: 14),
-                              SizedBox(width: 4),
+                              Icon(
+                                isTrendUp ? Icons.arrow_upward : Icons.arrow_downward,
+                                color: isTrendUp ? Colors.redAccent : Colors.green,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 4),
                               Text(
-                                '5.2%',
+                                '${changePercent.toStringAsFixed(1)}%',
                                 style: TextStyle(
-                                  color: Colors.green,
+                                  color: isTrendUp ? Colors.redAccent : Colors.green,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
