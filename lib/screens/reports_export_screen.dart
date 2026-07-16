@@ -57,7 +57,7 @@ class _ReportsExportScreenState extends State<ReportsExportScreen> {
     final wallets = ['All', ...finance.wallets.map((w) => w.id)];
 
     // Filtered transaction list for report preview
-    final filteredTxs = finance.transactions.where((t) {
+    final filteredTxs = finance.transactions.whereType<Transaction>().where((t) {
       final inRange = t.date.isAfter(_startDate.subtract(const Duration(seconds: 1))) &&
           t.date.isBefore(_endDate.add(const Duration(days: 1)));
       final matchesCategory = _selectedCategory == 'All' || t.category == _selectedCategory;

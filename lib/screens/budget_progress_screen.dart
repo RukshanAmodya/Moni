@@ -75,12 +75,13 @@ class BudgetProgressScreen extends StatelessWidget {
             else
               ...finance.budgets.map((budget) {
                 final spent = finance.transactions
+                    .whereType<Transaction>()
                     .where((t) =>
                         t.type == 'expense' &&
                         t.category == budget.category &&
                         t.date.year == now.year &&
                         t.date.month == now.month)
-                    .fold(0.0, (sum, item) => sum + item.amount);
+                    .fold<double>(0.0, (sum, item) => sum + item.amount);
 
                 final ratio = budget.limitAmount > 0 ? (spent / budget.limitAmount).clamp(0.0, 1.0) : 0.0;
                 final percentageStr = (ratio * 100).toStringAsFixed(0);

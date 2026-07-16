@@ -13,7 +13,7 @@ class RecurringSubscriptionsScreen extends StatelessWidget {
     final finance = Provider.of<FinanceProvider>(context);
     final currencySymbol = finance.currency;
 
-    final recurringTxs = finance.transactions.where((t) => t.isRecurring).toList();
+    final recurringTxs = finance.transactions.whereType<Transaction>().where((t) => t.isRecurring).toList();
 
     return Scaffold(
       backgroundColor: MoniTheme.background,
