@@ -7,6 +7,7 @@ import '../models/finance_models.dart';
 import 'transactions_screen.dart'; // to open the AddTransaction dialog
 import 'wallet_details_screen.dart';
 import 'budget_progress_screen.dart';
+import '../widgets/category_pie_chart.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -444,6 +445,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ],
                 ),
+              ),
+
+              const SizedBox(height: 24),
+
+              CategoryPieChart(
+                transactions: finance.transactions,
+                currency: currencySymbol,
               ),
 
               const SizedBox(height: 24),
