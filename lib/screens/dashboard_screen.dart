@@ -85,12 +85,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       backgroundColor: MoniTheme.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFE5E7FD), // Soft lavender gradient
+              MoniTheme.background,
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.0, 0.42],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               const SizedBox(height: 10),
               // Header
               Row(
@@ -560,21 +572,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 20),
             ],
           ),
-        ),
-      ),
-      // Floating Quick Action Button
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 72.0), // Above the floating bottom nav
-        child: FloatingActionButton(
-          backgroundColor: MoniTheme.blackAccent,
-          shape: const CircleBorder(),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => const AddTransactionDialog(),
-            );
-          },
-          child: const Icon(Icons.add, color: Colors.white, size: 28),
         ),
       ),
     );
