@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/finance_provider.dart';
 import '../theme/moni_theme.dart';
 import 'pin_lock_screen.dart';
+import '../models/finance_models.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

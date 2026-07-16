@@ -42,7 +42,7 @@ class MoniTheme {
           labelLarge: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: mutedText),
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: cardBg,
         elevation: 0,
         shape: RoundedRectangleBorder(
