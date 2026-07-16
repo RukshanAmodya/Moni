@@ -48,6 +48,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
     final bool isTrendUp = changePercent >= 0;
 
+    final double savingsRate = finance.thisMonthIncome > 0
+        ? ((finance.thisMonthIncome - finance.thisMonthExpense) / finance.thisMonthIncome) * 100
+        : 0.0;
+
+    final double lastMonthIncome = finance.transactions
+        .where((tx) {
+          if (tx.type != 'income') return false;
+          final diff = DateTime.now().difference(tx.date).inDays;
+          return diff >= 30 && diff < 60;
+        })
+        .fold(0.0, (sum, tx) => sum + tx.amount);
+
+    double incomeChange = 0.0;
+    if (lastMonthIncome > 0) {
+      incomeChange = ((finance.thisMonthIncome - lastMonthIncome) / lastMonthIncome) * 100;
+    } else if (finance.thisMonthIncome > 0) {
+      incomeChange = 100.0;
+    }
+
+    final double lastMonthExpense = finance.transactions
+        .where((tx) {
+          if (tx.type != 'expense') return false;
+          final diff = DateTime.now().difference(tx.date).inDays;
+          return diff >= 30 && diff < 60;
+        })
+        .fold(0.0, (sum, tx) => sum + tx.amount);
+
+    double expenseChange = 0.0;
+    if (lastMonthExpense > 0) {
+      expenseChange = ((finance.thisMonthExpense - lastMonthExpense) / lastMonthExpense) * 100;
+    } else if (finance.thisMonthExpense > 0) {
+      expenseChange = 100.0;
+    }
+
     return Scaffold(
       backgroundColor: MoniTheme.background,
       body: SafeArea(
@@ -176,7 +210,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     context,
                     title: 'Total Balance',
                     value: finance.incognitoEnabled ? '••••' : '$currencySymbol ${NumberFormat('#,##0').format(finance.totalBalance)}',
-                    percentage: '+2.4%',
+                    percentage: '${savingsRate.toStringAsFixed(1)}% Saved',
                     icon: Icons.account_balance_wallet_outlined,
                     iconBgColor: MoniTheme.sageGreenLight,
                     iconColor: MoniTheme.sageGreen,
@@ -186,7 +220,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     context,
                     title: "Month's Income",
                     value: finance.incognitoEnabled ? '••••' : '$currencySymbol ${NumberFormat('#,##0').format(finance.thisMonthIncome)}',
-                    percentage: '+12.5%',
+                    percentage: '${incomeChange >= 0 ? '+' : ''}${incomeChange.toStringAsFixed(1)}% MoM',
                     icon: Icons.trending_up_rounded,
                     iconBgColor: const Color(0xFFE3EDF7),
                     iconColor: Colors.blueAccent,
@@ -195,7 +229,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     context,
                     title: "Month's Expense",
                     value: finance.incognitoEnabled ? '••••' : '$currencySymbol ${NumberFormat('#,##0').format(finance.thisMonthExpense)}',
-                    percentage: '-5.2%',
+                    percentage: '${expenseChange >= 0 ? '+' : ''}${expenseChange.toStringAsFixed(1)}% MoM',
                     icon: Icons.trending_down_rounded,
                     iconBgColor: const Color(0xFFFBEBEB),
                     iconColor: Colors.redAccent,
