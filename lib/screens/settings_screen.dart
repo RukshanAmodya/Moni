@@ -13,6 +13,7 @@ import 'category_customizer_screen.dart';
 import 'reports_export_screen.dart';
 import 'financial_tips_screen.dart';
 import 'login_screen.dart';
+import 'financial_hub_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -167,6 +168,11 @@ class SettingsScreen extends StatelessWidget {
                       title: const Text('Customize Categories'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoryCustomizerScreen())),
+                    ),
+                    ListTile(
+                      title: const Text('Financial Tools Hub'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FinancialHubScreen())),
                     ),
                   ],
                 ),
