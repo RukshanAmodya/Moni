@@ -167,11 +167,23 @@ class FinanceProvider with ChangeNotifier {
       double newBalance = wallet.balance;
       if (transaction.type == 'income') {
         newBalance += transaction.amount;
-      } else {
+      } else if (transaction.type == 'expense') {
+        newBalance -= transaction.amount;
+      } else if (transaction.type == 'transfer') {
         newBalance -= transaction.amount;
       }
       _wallets[walletIdx] = wallet.copyWith(balance: newBalance);
       await _storage.saveWallets(_wallets);
+    }
+
+    // For transfers, update destination wallet too
+    if (transaction.type == 'transfer' && transaction.toWalletId != null) {
+      final toWalletIdx = _wallets.indexWhere((w) => w.id == transaction.toWalletId);
+      if (toWalletIdx != -1) {
+        final toWallet = _wallets[toWalletIdx];
+        _wallets[toWalletIdx] = toWallet.copyWith(balance: toWallet.balance + transaction.amount);
+        await _storage.saveWallets(_wallets);
+      }
     }
 
     await _storage.saveTransactions(_transactions);
@@ -189,11 +201,23 @@ class FinanceProvider with ChangeNotifier {
         double newBalance = wallet.balance;
         if (transaction.type == 'income') {
           newBalance -= transaction.amount;
-        } else {
+        } else if (transaction.type == 'expense') {
+          newBalance += transaction.amount;
+        } else if (transaction.type == 'transfer') {
           newBalance += transaction.amount;
         }
         _wallets[walletIdx] = wallet.copyWith(balance: newBalance);
         await _storage.saveWallets(_wallets);
+      }
+
+      // Reverse destination wallet for transfers
+      if (transaction.type == 'transfer' && transaction.toWalletId != null) {
+        final toWalletIdx = _wallets.indexWhere((w) => w.id == transaction.toWalletId);
+        if (toWalletIdx != -1) {
+          final toWallet = _wallets[toWalletIdx];
+          _wallets[toWalletIdx] = toWallet.copyWith(balance: toWallet.balance - transaction.amount);
+          await _storage.saveWallets(_wallets);
+        }
       }
 
       _transactions.removeAt(idx);

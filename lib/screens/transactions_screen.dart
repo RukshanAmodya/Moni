@@ -13,8 +13,18 @@ class TransactionsScreen extends StatefulWidget {
 }
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
-  String _typeFilter = 'All'; // 'All', 'Income', 'Expense'
+  String _typeFilter = 'All'; // 'All', 'Income', 'Expense', 'Transfer'
   String _categoryFilter = 'All';
+  String _walletFilter = 'All';
+  DateTimeRange? _dateRange;
+  final TextEditingController _searchController = TextEditingController();
+  bool _showFilters = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +33,36 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     final categories = ['All', ...finance.expenseCategories, ...finance.incomeCategories].toSet().toList();
 
     // Filter transactions
-    final filteredTxs = finance.transactions.where((t) {
+    final filteredTxs = finance.transactions.whereType<Transaction>().where((t) {
+      // Search text filter (matches title, category, or tags)
+      final query = _searchController.text.toLowerCase().trim();
+      final matchesQuery = query.isEmpty ||
+          t.title.toLowerCase().contains(query) ||
+          t.category.toLowerCase().contains(query) ||
+          t.tags.any((tag) => tag.toLowerCase().contains(query));
+
+      // Type filter
       final matchesType = _typeFilter == 'All' ||
           (_typeFilter == 'Income' && t.type == 'income') ||
-          (_typeFilter == 'Expense' && t.type == 'expense');
+          (_typeFilter == 'Expense' && t.type == 'expense') ||
+          (_typeFilter == 'Transfer' && t.type == 'transfer');
+
+      // Category filter
       final matchesCategory = _categoryFilter == 'All' || t.category == _categoryFilter;
-      return matchesType && matchesCategory;
+
+      // Wallet filter
+      final matchesWallet = _walletFilter == 'All' ||
+          t.walletId == _walletFilter ||
+          (t.type == 'transfer' && t.toWalletId == _walletFilter);
+
+      // Date Range filter
+      bool matchesDate = true;
+      if (_dateRange != null) {
+        matchesDate = t.date.isAfter(_dateRange!.start.subtract(const Duration(seconds: 1))) &&
+            t.date.isBefore(_dateRange!.end.add(const Duration(days: 1)));
+      }
+
+      return matchesQuery && matchesType && matchesCategory && matchesWallet && matchesDate;
     }).toList();
 
     // Sort: Latest first
@@ -42,83 +76,175 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           children: [
             // Header
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 16),
-              child: Text(
-                'Transactions',
-                style: Theme.of(context).textTheme.displayMedium,
-              ),
-            ),
-
-            // Filters
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Type selection pill
-                  Expanded(
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: DropdownButton<String>(
-                        value: _typeFilter,
-                        isExpanded: true,
-                        underline: const SizedBox(),
-                        items: ['All', 'Income', 'Expense']
-                            .map((type) => DropdownMenuItem(
-                                  value: type,
-                                  child: Text(type),
-                                ))
-                            .toList(),
-                        onChanged: (val) {
-                          if (val != null) {
-                            setState(() {
-                              _typeFilter = val;
-                            });
-                          }
-                        },
-                      ),
-                    ),
+                  Text(
+                    'Transactions',
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
-                  const SizedBox(width: 16),
-                  // Category selection pill
-                  Expanded(
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: DropdownButton<String>(
-                        value: _categoryFilter,
-                        isExpanded: true,
-                        underline: const SizedBox(),
-                        items: categories
-                            .map((cat) => DropdownMenuItem(
-                                  value: cat,
-                                  child: Text(cat),
-                                ))
-                            .toList(),
-                        onChanged: (val) {
-                          if (val != null) {
-                            setState(() {
-                              _categoryFilter = val;
-                            });
-                          }
-                        },
-                      ),
-                    ),
+                  IconButton(
+                    icon: Icon(_showFilters ? Icons.filter_list_off : Icons.filter_list, color: MoniTheme.sageGreen),
+                    onPressed: () {
+                      setState(() {
+                        _showFilters = !_showFilters;
+                      });
+                    },
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
 
-            // Transactions list
+            // Search Bar Input
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search title, category, or #tag...',
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 18),
+                          onPressed: () {
+                            setState(() {
+                              _searchController.clear();
+                            });
+                          },
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                ),
+                onChanged: (val) {
+                  setState(() {});
+                },
+              ),
+            ),
+
+            // Collapsible Advanced Filter Section
+            if (_showFilters)
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.all(16),
+                decoration: MoniTheme.premiumCardDecoration,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        // Type dropdown
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            value: _typeFilter,
+                            decoration: const InputDecoration(labelText: 'Type', border: InputBorder.none),
+                            items: const [
+                              DropdownMenuItem(value: 'All', child: Text('All Types')),
+                              DropdownMenuItem(value: 'Income', child: Text('Income')),
+                              DropdownMenuItem(value: 'Expense', child: Text('Expense')),
+                              DropdownMenuItem(value: 'Transfer', child: Text('Transfer')),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() {
+                                  _typeFilter = val;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // Wallet Dropdown
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            value: _walletFilter,
+                            decoration: const InputDecoration(labelText: 'Wallet', border: InputBorder.none),
+                            items: [
+                              const DropdownMenuItem(value: 'All', child: Text('All Wallets')),
+                              ...finance.wallets.map((w) => DropdownMenuItem(value: w.id, child: Text(w.name))),
+                            ],
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() {
+                                  _walletFilter = val;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        // Category Dropdown
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            value: _categoryFilter,
+                            decoration: const InputDecoration(labelText: 'Category', border: InputBorder.none),
+                            items: categories.map((cat) => DropdownMenuItem(value: cat, child: Text(cat))).toList(),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setState(() {
+                                  _categoryFilter = val;
+                                });
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // Date picker button
+                        Expanded(
+                          child: TextButton.icon(
+                            style: TextButton.styleFrom(
+                              alignment: Alignment.centerLeft,
+                              foregroundColor: MoniTheme.sageGreen,
+                            ),
+                            onPressed: () async {
+                              final range = await showDateRangePicker(
+                                context: context,
+                                firstDate: DateTime(2020),
+                                lastDate: DateTime(2030),
+                              );
+                              if (range != null) {
+                                setState(() {
+                                  _dateRange = range;
+                                });
+                              }
+                            },
+                            icon: const Icon(Icons.date_range, size: 20),
+                            label: Text(
+                              _dateRange == null
+                                  ? 'All Dates'
+                                  : '${DateFormat('MM/dd').format(_dateRange!.start)} - ${DateFormat('MM/dd').format(_dateRange!.end)}',
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_dateRange != null)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _dateRange = null;
+                            });
+                          },
+                          child: const Text('Reset Dates', style: TextStyle(color: Colors.redAccent, fontSize: 12)),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+
+            const SizedBox(height: 8),
+
+            // Transactions List (No Dividers, only spacious cards)
             Expanded(
               child: filteredTxs.isEmpty
                   ? const Center(child: Text('No transactions found.'))
@@ -128,8 +254,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       itemBuilder: (context, index) {
                         final tx = filteredTxs[index];
                         final isIncome = tx.type == 'income';
-                        final color = isIncome ? Colors.green : Colors.redAccent;
-                        final amountSign = isIncome ? '+' : '-';
+                        final isTransfer = tx.type == 'transfer';
+                        final Color color = isIncome
+                            ? Colors.green
+                            : isTransfer
+                                ? Colors.blueGrey
+                                : Colors.redAccent;
+                        final amountSign = isIncome
+                            ? '+'
+                            : isTransfer
+                                ? ''
+                                : '-';
 
                         return Dismissible(
                           key: Key(tx.id),
@@ -151,75 +286,132 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           },
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                             decoration: MoniTheme.premiumCardDecoration,
-                            child: Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Category Icon placeholder
-                                CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor: _getCategoryColor(tx.category).withOpacity(0.2),
-                                  child: Icon(
-                                    _getCategoryIcon(tx.category),
-                                    color: _getCategoryColor(tx.category),
-                                    size: 20,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                // Title and Wallet
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        tx.title,
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                Row(
+                                  children: [
+                                    // Custom visual icon representing type
+                                    CircleAvatar(
+                                      radius: 20,
+                                      backgroundColor: _getCategoryColor(tx.category).withOpacity(0.12),
+                                      child: Icon(
+                                        isTransfer ? Icons.swap_horiz_rounded : _getCategoryIcon(tx.category),
+                                        color: isTransfer ? Colors.blueGrey : _getCategoryColor(tx.category),
+                                        size: 20,
                                       ),
-                                      const SizedBox(height: 2),
-                                      Row(
+                                    ),
+                                    const SizedBox(width: 16),
+                                    // Title & Category/Wallet
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            tx.category,
-                                            style: const TextStyle(fontSize: 12, color: MoniTheme.mutedText),
+                                            tx.title,
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                                           ),
-                                          const SizedBox(width: 8),
-                                          Container(
-                                            width: 4,
-                                            height: 4,
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: MoniTheme.mutedText,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            tx.walletId.toUpperCase(),
-                                            style: const TextStyle(fontSize: 12, color: MoniTheme.mutedText),
+                                          const SizedBox(height: 3),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                isTransfer ? 'Transfer' : tx.category,
+                                                style: const TextStyle(fontSize: 12, color: MoniTheme.mutedText),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                isTransfer
+                                                    ? '${tx.walletId.toUpperCase()} → ${tx.toWalletId?.toUpperCase()}'
+                                                    : tx.walletId.toUpperCase(),
+                                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: MoniTheme.sageGreen),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                // Amount & Date
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      '$amountSign$currencySymbol ${NumberFormat('#,##0').format(tx.amount)}',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: color,
-                                      ),
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      DateFormat('MMM d, y').format(tx.date),
-                                      style: const TextStyle(fontSize: 11, color: MoniTheme.mutedText),
+                                    // Amount & Date
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '$amountSign$currencySymbol ${NumberFormat('#,##0').format(tx.amount)}',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                            color: color,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          DateFormat('MMM d, y').format(tx.date),
+                                          style: const TextStyle(fontSize: 10, color: MoniTheme.mutedText),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
+
+                                // Custom extra markers section (Tags, location, attachments, pending status, linked refunds)
+                                if (tx.tags.isNotEmpty || tx.location != null || tx.attachmentPath != null || tx.isPending || tx.refundLinkedTxId != null) ...[
+                                  const SizedBox(height: 10),
+                                  Wrap(
+                                    spacing: 6,
+                                    runSpacing: 4,
+                                    children: [
+                                      // Pending marker
+                                      if (tx.isPending)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: Colors.amber.shade100,
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: const Text('PENDING', style: TextStyle(color: Colors.amber, fontSize: 9, fontWeight: FontWeight.bold)),
+                                        ),
+                                      // Refund marker
+                                      if (tx.refundLinkedTxId != null)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green.shade100,
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: const Text('REFUND', style: TextStyle(color: Colors.green, fontSize: 9, fontWeight: FontWeight.bold)),
+                                        ),
+                                      // Attachment marker
+                                      if (tx.attachmentPath != null)
+                                        const Padding(
+                                          padding: EdgeInsets.symmetric(vertical: 2.0),
+                                          child: Icon(Icons.attach_file, size: 14, color: MoniTheme.mutedText),
+                                        ),
+                                      // Location marker
+                                      if (tx.location != null)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(Icons.location_on_outlined, size: 12, color: MoniTheme.mutedText),
+                                              const SizedBox(width: 2),
+                                              Text(tx.location!, style: const TextStyle(color: MoniTheme.mutedText, fontSize: 9)),
+                                            ],
+                                          ),
+                                        ),
+                                      // Tags
+                                      ...tx.tags.map((tag) => Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: MoniTheme.sageGreen.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: Text(tag, style: const TextStyle(color: MoniTheme.sageGreen, fontSize: 9, fontWeight: FontWeight.bold)),
+                                          )),
+                                    ],
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -297,12 +489,27 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
+  final _tagsController = TextEditingController();
+  final _locationController = TextEditingController();
 
-  String _type = 'expense'; // 'income' or 'expense'
+  String _type = 'expense'; // 'income', 'expense', or 'transfer'
   String _category = '';
   String _walletId = 'cash';
+  String? _toWalletId;
   bool _isRecurring = false;
   String _recurrenceInterval = 'none';
+  bool _isPending = false;
+  String? _refundLinkedTxId;
+  String? _attachmentPath;
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _amountController.dispose();
+    _tagsController.dispose();
+    _locationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -312,6 +519,11 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
     // Reset/initialize selected category if not in current category list
     if (_category.isEmpty || !categories.contains(_category)) {
       _category = categories.isNotEmpty ? categories.first : 'Other';
+    }
+
+    // Set default destination wallet for transfer
+    if (_type == 'transfer' && _toWalletId == null && finance.wallets.length > 1) {
+      _toWalletId = finance.wallets.firstWhere((w) => w.id != _walletId).id;
     }
 
     return AlertDialog(
@@ -328,7 +540,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Income / Expense Sliding Toggle Custom Widget
+              // Income / Expense / Transfer Custom Sliding Toggle Widget
               Container(
                 height: 50,
                 decoration: BoxDecoration(
@@ -352,12 +564,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                             borderRadius: BorderRadius.circular(21),
                           ),
                           alignment: Alignment.center,
-                          child: Text(
+                          child: const Text(
                             'Expense',
-                            style: TextStyle(
-                              color: _type == 'expense' ? Colors.white : MoniTheme.mutedText,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                           ),
                         ),
                       ),
@@ -376,12 +585,29 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                             borderRadius: BorderRadius.circular(21),
                           ),
                           alignment: Alignment.center,
-                          child: Text(
+                          child: const Text(
                             'Income',
-                            style: TextStyle(
-                              color: _type == 'income' ? Colors.white : MoniTheme.mutedText,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _type = 'transfer';
+                          });
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _type == 'transfer' ? MoniTheme.sageGreen : Colors.transparent,
+                            borderRadius: BorderRadius.circular(21),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'Transfer',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                           ),
                         ),
                       ),
@@ -424,49 +650,172 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               ),
               const SizedBox(height: 16),
 
-              // Category Selector
-              DropdownButtonFormField<String>(
-                value: _category,
+              // Conditional Category / Wallet dropdowns
+              if (_type != 'transfer') ...[
+                // Category Selector
+                DropdownButtonFormField<String>(
+                  value: _category,
+                  decoration: InputDecoration(
+                    labelText: 'Category',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  ),
+                  items: categories
+                      .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _category = val;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                // Wallet Selector
+                DropdownButtonFormField<String>(
+                  value: _walletId,
+                  decoration: InputDecoration(
+                    labelText: 'Wallet / Account',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  ),
+                  items: finance.wallets
+                      .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name)))
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _walletId = val;
+                      });
+                    }
+                  },
+                ),
+              ] else ...[
+                // Source Wallet Selector
+                DropdownButtonFormField<String>(
+                  value: _walletId,
+                  decoration: InputDecoration(
+                    labelText: 'From Wallet (Source)',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  ),
+                  items: finance.wallets
+                      .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name)))
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _walletId = val;
+                        // Avoid choosing same source & dest wallet
+                        if (_toWalletId == _walletId) {
+                          _toWalletId = finance.wallets.firstWhere((w) => w.id != _walletId).id;
+                        }
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                // Destination Wallet Selector
+                DropdownButtonFormField<String>(
+                  value: _toWalletId,
+                  decoration: InputDecoration(
+                    labelText: 'To Wallet (Destination)',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  ),
+                  items: finance.wallets
+                      .where((w) => w.id != _walletId)
+                      .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name)))
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() {
+                        _toWalletId = val;
+                      });
+                    }
+                  },
+                ),
+              ],
+              const SizedBox(height: 16),
+
+              // Tags Input (Optional)
+              TextFormField(
+                controller: _tagsController,
                 decoration: InputDecoration(
-                  labelText: 'Category',
+                  labelText: 'Tags (e.g. #Trip2026, #Medical)',
                   filled: true,
                   fillColor: Colors.grey.shade50,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  prefixIcon: const Icon(Icons.tag, size: 20),
                 ),
-                items: categories
-                    .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      _category = val;
-                    });
-                  }
-                },
               ),
               const SizedBox(height: 16),
 
-              // Wallet Selector
-              DropdownButtonFormField<String>(
-                value: _walletId,
+              // Location Input (Optional)
+              TextFormField(
+                controller: _locationController,
                 decoration: InputDecoration(
-                  labelText: 'Wallet / Account',
+                  labelText: 'Location (Optional)',
                   filled: true,
                   fillColor: Colors.grey.shade50,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
                 ),
-                items: finance.wallets
-                    .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name)))
-                    .toList(),
-                onChanged: (val) {
-                  if (val != null) {
-                    setState(() {
-                      _walletId = val;
-                    });
-                  }
-                },
               ),
               const SizedBox(height: 16),
+
+              // Attachment Picker Button (Simulated receipt upload)
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _attachmentPath = _attachmentPath == null ? 'receipt_${DateTime.now().millisecondsSinceEpoch}.png' : null;
+                        });
+                      },
+                      icon: Icon(_attachmentPath == null ? Icons.camera_alt_outlined : Icons.check_circle, size: 20),
+                      label: Text(_attachmentPath == null ? 'Upload Receipt Photo' : 'Receipt Linked'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Refund Linkage (Optional - Select original Transaction to link)
+              if (_type == 'income') ...[
+                DropdownButtonFormField<String>(
+                  value: _refundLinkedTxId,
+                  decoration: InputDecoration(
+                    labelText: 'Link to original expense (Refund)',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  ),
+                  items: [
+                    const DropdownMenuItem(value: null, child: Text('None (Standard Income)')),
+                    ...finance.transactions
+                        .whereType<Transaction>()
+                        .where((t) => t.type == 'expense')
+                        .map((t) => DropdownMenuItem(value: t.id, child: Text('${t.title} - LKR ${t.amount}'))),
+                  ],
+                  onChanged: (val) {
+                    setState(() {
+                      _refundLinkedTxId = val;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
 
               // Recurring Settings
               CheckboxListTile(
@@ -505,7 +854,22 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                     }
                   },
                 ),
+                const SizedBox(height: 16),
               ],
+
+              // Pending Checkbox
+              CheckboxListTile(
+                title: const Text('Mark as Pending', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                value: _isPending,
+                activeColor: MoniTheme.sageGreen,
+                onChanged: (val) {
+                  setState(() {
+                    _isPending = val ?? false;
+                  });
+                },
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+              ),
             ],
           ),
         ),
@@ -527,16 +891,31 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               final amount = double.tryParse(_amountController.text) ?? 0.0;
+              
+              // Process comma separated tags
+              final List<String> parsedTags = _tagsController.text
+                  .split(',')
+                  .map((t) => t.trim())
+                  .where((t) => t.isNotEmpty)
+                  .map((t) => t.startsWith('#') ? t : '#$t')
+                  .toList();
+
               final tx = Transaction(
                 id: DateTime.now().millisecondsSinceEpoch.toString(),
                 title: _titleController.text.trim(),
                 amount: amount,
                 type: _type,
-                category: _category,
+                category: _type == 'transfer' ? 'Transfer' : _category,
                 date: DateTime.now(),
                 walletId: _walletId,
                 isRecurring: _isRecurring,
                 recurrenceInterval: _recurrenceInterval,
+                toWalletId: _type == 'transfer' ? _toWalletId : null,
+                tags: parsedTags,
+                location: _locationController.text.trim().isNotEmpty ? _locationController.text.trim() : null,
+                attachmentPath: _attachmentPath,
+                isPending: _isPending,
+                refundLinkedTxId: _type == 'income' ? _refundLinkedTxId : null,
               );
               finance.addTransaction(tx);
               Navigator.pop(context);

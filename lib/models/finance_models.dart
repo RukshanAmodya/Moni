@@ -2,12 +2,18 @@ class Transaction {
   final String id;
   final String title;
   final double amount;
-  final String type; // 'income' or 'expense'
+  final String type; // 'income', 'expense', or 'transfer'
   final String category;
   final DateTime date;
   final String walletId;
   final bool isRecurring;
   final String recurrenceInterval; // 'none', 'daily', 'weekly', 'monthly'
+  final String? toWalletId; // Target wallet for transfers
+  final List<String> tags; // Custom tags e.g. ['#Trip2026', '#Medical']
+  final String? attachmentPath; // Local file path for uploaded bills/receipts
+  final String? location; // GPS or text location
+  final bool isPending; // Pending transaction marker
+  final String? refundLinkedTxId; // Original transaction ID if this is a refund
 
   Transaction({
     required this.id,
@@ -19,6 +25,12 @@ class Transaction {
     required this.walletId,
     this.isRecurring = false,
     this.recurrenceInterval = 'none',
+    this.toWalletId,
+    this.tags = const [],
+    this.attachmentPath,
+    this.location,
+    this.isPending = false,
+    this.refundLinkedTxId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -31,6 +43,12 @@ class Transaction {
         'walletId': walletId,
         'isRecurring': isRecurring,
         'recurrenceInterval': recurrenceInterval,
+        'toWalletId': toWalletId,
+        'tags': tags,
+        'attachmentPath': attachmentPath,
+        'location': location,
+        'isPending': isPending,
+        'refundLinkedTxId': refundLinkedTxId,
       };
 
   factory Transaction.fromJson(Map<String, dynamic> json) => Transaction(
@@ -43,6 +61,12 @@ class Transaction {
         walletId: json['walletId'],
         isRecurring: json['isRecurring'] ?? false,
         recurrenceInterval: json['recurrenceInterval'] ?? 'none',
+        toWalletId: json['toWalletId'],
+        tags: (json['tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+        attachmentPath: json['attachmentPath'],
+        location: json['location'],
+        isPending: json['isPending'] ?? false,
+        refundLinkedTxId: json['refundLinkedTxId'],
       );
 }
 
