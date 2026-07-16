@@ -161,7 +161,7 @@ class BudgetProgressScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const Divider(height: 24),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
                           Icon(Icons.lightbulb_outline_rounded, size: 18, color: progressColor),

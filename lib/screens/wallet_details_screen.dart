@@ -82,8 +82,6 @@ class WalletDetailsScreen extends StatelessWidget {
                       '$currencySymbol ${NumberFormat('#,##0.00').format(wallet.balance)}',
                       style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: MoniTheme.darkText),
                     ),
-                    const SizedBox(height: 12),
-                    const Divider(),
                     const SizedBox(height: 8),
                     Text(
                       'Recent Activity (${txs.length} transactions)',

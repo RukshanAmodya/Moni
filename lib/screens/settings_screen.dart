@@ -45,6 +45,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final finance = Provider.of<FinanceProvider>(context);
     final auth = Provider.of<AuthProvider>(context);
+    final currencySymbol = finance.currency;
 
     return Scaffold(
       backgroundColor: MoniTheme.background,
@@ -61,43 +62,56 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Cloud Sync Status Card (Custom Restyled Header)
+              // Cloud Sync Status Card (Responsive Layout)
               Container(
                 padding: const EdgeInsets.all(20),
-                decoration: MoniTheme.premiumCardDecoration,
+                decoration: BoxDecoration(
+                  color: auth.isAuthenticated ? MoniTheme.sageGreen.withOpacity(0.08) : Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
                 child: Row(
                   children: [
                     CircleAvatar(
-                      radius: 24,
+                      radius: 22,
                       backgroundColor: auth.isAuthenticated ? MoniTheme.sageGreen.withOpacity(0.15) : Colors.grey.shade100,
                       child: Icon(
-                        auth.isAuthenticated ? Icons.cloud_done_outlined : Icons.cloud_off_outlined,
+                        auth.isAuthenticated ? Icons.cloud_done : Icons.cloud_off,
                         color: auth.isAuthenticated ? MoniTheme.sageGreen : Colors.grey,
-                        size: 28,
+                        size: 22,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            auth.isAuthenticated ? 'Cloud Sync Connected' : 'Sync Offline Mode',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            auth.isAuthenticated ? 'Cloud Sync Active' : 'Offline Storage',
+                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: MoniTheme.darkText),
                           ),
                           Text(
-                            auth.isAuthenticated ? '${auth.user?.email}' : 'Sign in to backup data to cloud',
-                            style: const TextStyle(fontSize: 12, color: MoniTheme.mutedText),
+                            auth.isAuthenticated ? '${auth.user?.email}' : 'Data saved locally on your device',
+                            style: const TextStyle(fontSize: 11, color: MoniTheme.mutedText),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ],
                       ),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: auth.isAuthenticated ? Colors.redAccent.withOpacity(0.1) : MoniTheme.sageGreen.withOpacity(0.15),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: auth.isAuthenticated ? Colors.redAccent.withOpacity(0.1) : MoniTheme.sageGreen.withOpacity(0.1),
                         foregroundColor: auth.isAuthenticated ? Colors.redAccent : MoniTheme.sageGreen,
-                        elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
                       onPressed: () {
                         if (auth.isAuthenticated) {
@@ -109,7 +123,10 @@ class SettingsScreen extends StatelessWidget {
                           );
                         }
                       },
-                      child: Text(auth.isAuthenticated ? 'Logout' : 'Connect'),
+                      child: Text(
+                        auth.isAuthenticated ? 'Disconnect' : 'Connect',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
                     ),
                   ],
                 ),
@@ -240,56 +257,184 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Data Backup Section
-              _buildSectionTitle(context, 'Backup & Sync'),
-              Container(
-                decoration: MoniTheme.premiumCardDecoration,
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(Icons.cloud_upload_outlined, color: MoniTheme.sageGreen),
-                      title: const Text('Export Backup'),
-                      subtitle: const Text('Copy backup JSON data to clipboard'),
-                      onTap: () async {
-                        final data = await finance.exportBackup();
-                        await Clipboard.setData(ClipboardData(text: data));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Backup JSON copied to clipboard!')),
-                        );
-                      },
+              // Backup & Sync Grid Actions
+              _buildSectionTitle(context, 'Backup & Export'),
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      // Card 1: Export Backup
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final data = await finance.exportBackup();
+                            await Clipboard.setData(ClipboardData(text: data));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Backup JSON copied to clipboard!')),
+                            );
+                          },
+                          child: Container(
+                            height: 110,
+                            padding: const EdgeInsets.all(16),
+                            decoration: MoniTheme.premiumCardDecoration,
+                            child: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: MoniTheme.sageGreenLight,
+                                  child: Icon(Icons.cloud_upload_outlined, color: MoniTheme.sageGreen, size: 18),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Export Backup', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                    SizedBox(height: 2),
+                                    Text('Copy JSON to clipboard', style: TextStyle(fontSize: 10, color: MoniTheme.mutedText)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      // Card 2: Import Backup
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _showImportBackupDialog(context, finance),
+                          child: Container(
+                            height: 110,
+                            padding: const EdgeInsets.all(16),
+                            decoration: MoniTheme.premiumCardDecoration,
+                            child: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: Color(0xFFE3EDF7),
+                                  child: Icon(Icons.cloud_download_outlined, color: Colors.blueAccent, size: 18),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Import Backup', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                    SizedBox(height: 2),
+                                    Text('Paste backup JSON', style: TextStyle(fontSize: 10, color: MoniTheme.mutedText)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 16),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      // Card 3: Export CSV
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            final csv = finance.exportTransactionsToCsv();
+                            await Clipboard.setData(ClipboardData(text: csv));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('CSV Report copied to clipboard!')),
+                            );
+                          },
+                          child: Container(
+                            height: 110,
+                            padding: const EdgeInsets.all(16),
+                            decoration: MoniTheme.premiumCardDecoration,
+                            child: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: Color(0xFFE2F3E7),
+                                  child: Icon(Icons.description_outlined, color: Colors.green, size: 18),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Export CSV', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                    SizedBox(height: 2),
+                                    Text('Copy monthly reports', style: TextStyle(fontSize: 10, color: MoniTheme.mutedText)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      // Card 4: Report Wizard
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsExportScreen())),
+                          child: Container(
+                            height: 110,
+                            padding: const EdgeInsets.all(16),
+                            decoration: MoniTheme.premiumCardDecoration,
+                            child: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: Color(0xFFFBECEB),
+                                  child: Icon(Icons.analytics_outlined, color: Colors.deepOrangeAccent, size: 18),
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Report Wizard', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                    SizedBox(height: 2),
+                                    Text('Filter & copy custom CSV', style: TextStyle(fontSize: 10, color: MoniTheme.mutedText)),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // Full width Education Hub card
+                  GestureDetector(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FinancialTipsScreen())),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: MoniTheme.premiumCardDecoration,
+                      child: const Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Color(0xFFFFF7E6),
+                            child: Icon(Icons.lightbulb_outline_rounded, color: Colors.amber, size: 20),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Financial Education Hub', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                Text('Read personal finance tips & recommendations', style: TextStyle(fontSize: 11, color: MoniTheme.mutedText)),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.chevron_right, color: MoniTheme.mutedText),
+                        ],
+                      ),
                     ),
-                    ListTile(
-                      leading: const Icon(Icons.cloud_download_outlined, color: Colors.blueAccent),
-                      title: const Text('Import Backup'),
-                      subtitle: const Text('Paste previously exported backup JSON'),
-                      onTap: () => _showImportBackupDialog(context, finance),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.description_outlined, color: Colors.green),
-                      title: const Text('Export CSV Report'),
-                      subtitle: const Text('Copy monthly report in Excel/CSV format'),
-                      onTap: () async {
-                        final csv = finance.exportTransactionsToCsv();
-                        await Clipboard.setData(ClipboardData(text: csv));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('CSV Report copied to clipboard!')),
-                        );
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.analytics_outlined, color: Colors.deepOrangeAccent),
-                      title: const Text('Export Report Wizard'),
-                      subtitle: const Text('Filter and copy custom reports to CSV'),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportsExportScreen())),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.lightbulb_outline_rounded, color: Colors.amber),
-                      title: const Text('Financial Education Hub'),
-                      subtitle: const Text('Read personal finance tips & recommendations'),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FinancialTipsScreen())),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
 

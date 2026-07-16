@@ -163,9 +163,7 @@ class _ReportsExportScreenState extends State<ReportsExportScreen> {
                         _buildSummaryRow('Total Income', '$currencySymbol ${NumberFormat('#,##0').format(totalIncome)}', Colors.green),
                         const SizedBox(height: 12),
                         _buildSummaryRow('Total Expenses', '$currencySymbol ${NumberFormat('#,##0').format(totalExpense)}', Colors.redAccent),
-                        const SizedBox(height: 12),
-                        const Divider(),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         _buildSummaryRow(
                           'Net Balance',
                           '$currencySymbol ${NumberFormat('#,##0').format(totalIncome - totalExpense)}',
