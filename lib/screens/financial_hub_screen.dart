@@ -109,17 +109,36 @@ class _FinancialHubScreenState extends State<FinancialHubScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           foregroundColor: MoniTheme.darkText,
-          bottom: const TabBar(
-            isScrollable: true,
-            labelColor: MoniTheme.sageGreen,
-            unselectedLabelColor: MoniTheme.mutedText,
-            indicatorColor: MoniTheme.sageGreen,
-            tabs: [
-              Tab(icon: Icon(Icons.calculate_outlined), text: 'EMI Calc'),
-              Tab(icon: Icon(Icons.people_outline), text: 'Debts & Reminders'),
-              Tab(icon: Icon(Icons.percent_outlined), text: 'Tax Calc'),
-              Tab(icon: Icon(Icons.shopping_bag_outlined), text: 'Shopping List'),
-            ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(60),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: TabBar(
+                  isScrollable: true,
+                  dividerColor: Colors.transparent,
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicator: BoxDecoration(
+                    color: MoniTheme.sageGreen.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  labelColor: MoniTheme.sageGreen,
+                  unselectedLabelColor: MoniTheme.mutedText,
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  tabs: const [
+                    Tab(text: 'EMI Calc'),
+                    Tab(text: 'Debts & Reminders'),
+                    Tab(text: 'Tax Calc'),
+                    Tab(text: 'Shopping List'),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
         body: SafeArea(

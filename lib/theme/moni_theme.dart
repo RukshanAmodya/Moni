@@ -49,6 +49,17 @@ class MoniTheme {
           borderRadius: BorderRadius.circular(20),
         ),
       ),
+      dividerTheme: const DividerThemeData(
+        color: Colors.transparent,
+        space: 0,
+        thickness: 0,
+      ),
+      tabBarTheme: const TabBarTheme(
+        dividerColor: Colors.transparent,
+        indicatorColor: sageGreen,
+        labelColor: sageGreen,
+        unselectedLabelColor: mutedText,
+      ),
     );
   }
 

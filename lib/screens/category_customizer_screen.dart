@@ -31,7 +31,9 @@ class _CategoryCustomizerScreenState extends State<CategoryCustomizerScreen> wit
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Add $type Category'),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text('Add $type Category', style: const TextStyle(fontWeight: FontWeight.bold)),
         content: TextField(
           controller: _categoryController,
           decoration: const InputDecoration(
@@ -45,9 +47,14 @@ class _CategoryCustomizerScreenState extends State<CategoryCustomizerScreen> wit
               _categoryController.clear();
               Navigator.pop(context);
             },
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: MoniTheme.mutedText)),
           ),
-          TextButton(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: MoniTheme.blackAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
             onPressed: () {
               final cat = _categoryController.text.trim();
               if (cat.isNotEmpty) {
@@ -56,7 +63,7 @@ class _CategoryCustomizerScreenState extends State<CategoryCustomizerScreen> wit
                 Navigator.pop(context);
               }
             },
-            child: const Text('Add', style: TextStyle(color: MoniTheme.sageGreen)),
+            child: const Text('Add'),
           ),
         ],
       ),
@@ -74,15 +81,34 @@ class _CategoryCustomizerScreenState extends State<CategoryCustomizerScreen> wit
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: MoniTheme.darkText,
-        bottom: TabBar(
-          controller: _tabController,
-          labelColor: MoniTheme.blackAccent,
-          unselectedLabelColor: MoniTheme.mutedText,
-          indicatorColor: MoniTheme.sageGreen,
-          tabs: const [
-            Tab(text: 'Expenses'),
-            Tab(text: 'Incomes'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Container(
+              height: 46,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: TabBar(
+                controller: _tabController,
+                dividerColor: Colors.transparent,
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicator: BoxDecoration(
+                  color: MoniTheme.sageGreen.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                labelColor: MoniTheme.sageGreen,
+                unselectedLabelColor: MoniTheme.mutedText,
+                labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                tabs: const [
+                  Tab(text: 'Expenses'),
+                  Tab(text: 'Incomes'),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
       body: SafeArea(
@@ -100,9 +126,10 @@ class _CategoryCustomizerScreenState extends State<CategoryCustomizerScreen> wit
   Widget _buildCategoryTab(FinanceProvider finance, String type, List<String> list) {
     return Column(
       children: [
+        const SizedBox(height: 16),
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: list.length,
             itemBuilder: (context, index) {
               final cat = list[index];
@@ -110,7 +137,7 @@ class _CategoryCustomizerScreenState extends State<CategoryCustomizerScreen> wit
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: MoniTheme.premiumCardDecoration,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,7 +151,7 @@ class _CategoryCustomizerScreenState extends State<CategoryCustomizerScreen> wit
                         const SizedBox(width: 16),
                         Text(
                           cat,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: MoniTheme.darkText),
                         ),
                       ],
                     ),
@@ -134,9 +161,16 @@ class _CategoryCustomizerScreenState extends State<CategoryCustomizerScreen> wit
                         onPressed: () => finance.deleteCategory(type, cat),
                       )
                     else
-                      const Text(
-                        'System Default',
-                        style: TextStyle(fontSize: 11, color: MoniTheme.mutedText, fontStyle: FontStyle.italic),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'System Default',
+                          style: TextStyle(fontSize: 10, color: MoniTheme.mutedText, fontWeight: FontWeight.bold),
+                        ),
                       ),
                   ],
                 ),
@@ -152,10 +186,11 @@ class _CategoryCustomizerScreenState extends State<CategoryCustomizerScreen> wit
               foregroundColor: Colors.white,
               minimumSize: const Size.fromHeight(54),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27)),
+              elevation: 0,
             ),
             onPressed: () => _addCategoryDialog(type),
-            icon: const Icon(Icons.add),
-            label: const Text('Add Custom Category', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            icon: const Icon(Icons.add, size: 20),
+            label: const Text('Add Category', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           ),
         ),
       ],
