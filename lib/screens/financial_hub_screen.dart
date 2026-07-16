@@ -131,6 +131,7 @@ class _FinancialHubScreenState extends State<FinancialHubScreen> {
                   ),
                   child: TabBar(
                     isScrollable: true,
+                    tabAlignment: TabAlignment.start,
                     dividerColor: Colors.transparent,
                     indicatorSize: TabBarIndicatorSize.tab,
                     indicator: BoxDecoration(
