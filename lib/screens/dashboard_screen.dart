@@ -712,8 +712,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: const Text('Add', style: TextStyle(color: MoniTheme.sageGreen)),
           ),
         ],
-      ),
     );
+  }
+
   void _showAddPiggyBankDialog(BuildContext context, FinanceProvider finance) {
     final amountController = TextEditingController();
 
