@@ -137,62 +137,67 @@ class SettingsScreen extends StatelessWidget {
               _buildSectionTitle(context, 'Preferences'),
               Container(
                 decoration: MoniTheme.premiumCardDecoration,
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: const Text('Primary Currency'),
-                      trailing: DropdownButton<String>(
-                        borderRadius: BorderRadius.circular(16),
-                        value: finance.currency,
-                        underline: const SizedBox(),
-                        items: const [
-                          DropdownMenuItem(value: 'LKR', child: Text('LKR (රු)')),
-                          DropdownMenuItem(value: 'USD', child: Text('USD (\$)')),
-                          DropdownMenuItem(value: 'INR', child: Text('INR (₹)')),
-                        ],
-                        onChanged: (val) {
-                          if (val != null) {
-                            finance.updateCurrency(val);
-                          }
-                        },
+                child: Material(
+                  color: Colors.transparent,
+                  clipBehavior: Clip.antiAlias,
+                  borderRadius: BorderRadius.circular(24),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        title: const Text('Primary Currency'),
+                        trailing: DropdownButton<String>(
+                          borderRadius: BorderRadius.circular(16),
+                          value: finance.currency,
+                          underline: const SizedBox(),
+                          items: const [
+                            DropdownMenuItem(value: 'LKR', child: Text('LKR (රු)')),
+                            DropdownMenuItem(value: 'USD', child: Text('USD (\$)')),
+                            DropdownMenuItem(value: 'INR', child: Text('INR (₹)')),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) {
+                              finance.updateCurrency(val);
+                            }
+                          },
+                        ),
                       ),
-                    ),
-                    ListTile(
-                      title: const Text('Configure Budgets'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _showConfigureBudgetsDialog(context, finance),
-                    ),
-                    ListTile(
-                      title: const Text('Configure Overall Limits'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => _showConfigureOverallLimitsDialog(context, finance),
-                    ),
-                    ListTile(
-                      title: const Text('Wallets & Accounts'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletDetailsScreen())),
-                    ),
-                    ListTile(
-                      title: const Text('Budget Tracking Progress'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BudgetProgressScreen())),
-                    ),
-                    ListTile(
-                      title: const Text('Recurring Subscriptions'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecurringSubscriptionsScreen())),
-                    ),
-                    ListTile(
-                      title: const Text('Customize Categories'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoryCustomizerScreen())),
-                    ),
-                    ListTile(
-                      title: const Text('Financial Tools Hub'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FinancialHubScreen())),
-                    ),
-                  ],
+                      ListTile(
+                        title: const Text('Configure Budgets'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _showConfigureBudgetsDialog(context, finance),
+                      ),
+                      ListTile(
+                        title: const Text('Configure Overall Limits'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => _showConfigureOverallLimitsDialog(context, finance),
+                      ),
+                      ListTile(
+                        title: const Text('Wallets & Accounts'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WalletDetailsScreen())),
+                      ),
+                      ListTile(
+                        title: const Text('Budget Tracking Progress'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BudgetProgressScreen())),
+                      ),
+                      ListTile(
+                        title: const Text('Recurring Subscriptions'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RecurringSubscriptionsScreen())),
+                      ),
+                      ListTile(
+                        title: const Text('Customize Categories'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CategoryCustomizerScreen())),
+                      ),
+                      ListTile(
+                        title: const Text('Financial Tools Hub'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FinancialHubScreen())),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
@@ -201,59 +206,64 @@ class SettingsScreen extends StatelessWidget {
               _buildSectionTitle(context, 'Security'),
               Container(
                 decoration: MoniTheme.premiumCardDecoration,
-                child: Column(
-                  children: [
-                    SwitchListTile(
-                      title: const Text('PIN Code Protection'),
-                      subtitle: const Text('Secure your financial data'),
-                      activeColor: MoniTheme.sageGreen,
-                      value: finance.pinEnabled,
-                      onChanged: (bool value) {
-                        if (value) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PinLockScreen(
-                                isSettingPin: true,
-                                onSuccess: () => Navigator.pop(context),
+                child: Material(
+                  color: Colors.transparent,
+                  clipBehavior: Clip.antiAlias,
+                  borderRadius: BorderRadius.circular(24),
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        title: const Text('PIN Code Protection'),
+                        subtitle: const Text('Secure your financial data'),
+                        activeColor: MoniTheme.sageGreen,
+                        value: finance.pinEnabled,
+                        onChanged: (bool value) {
+                          if (value) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PinLockScreen(
+                                  isSettingPin: true,
+                                  onSuccess: () => Navigator.pop(context),
+                                ),
                               ),
-                            ),
-                          );
-                        } else {
-                          finance.disablePin();
-                        }
-                      },
-                    ),
-                    SwitchListTile(
-                      title: const Text('Incognito Mode'),
-                      subtitle: const Text('Hide account balances and cash values'),
-                      activeColor: MoniTheme.sageGreen,
-                      value: finance.incognitoEnabled,
-                      onChanged: (bool value) {
-                        finance.updateIncognitoEnabled(value);
-                      },
-                    ),
-                    if (finance.pinEnabled) ...[
-                      SwitchListTile(
-                        title: const Text('Biometric Fingerprint Lock'),
-                        subtitle: const Text('Unlock using device biometric scans'),
-                        activeColor: MoniTheme.sageGreen,
-                        value: finance.biometricEnabled,
-                        onChanged: (bool value) {
-                          finance.updateBiometricEnabled(value);
+                            );
+                          } else {
+                            finance.disablePin();
+                          }
                         },
                       ),
                       SwitchListTile(
-                        title: const Text('Self-Destruct Security'),
-                        subtitle: const Text('Wipe all local data after 5 failed PIN attempts'),
+                        title: const Text('Incognito Mode'),
+                        subtitle: const Text('Hide account balances and cash values'),
                         activeColor: MoniTheme.sageGreen,
-                        value: finance.selfDestructEnabled,
+                        value: finance.incognitoEnabled,
                         onChanged: (bool value) {
-                          finance.updateSelfDestructEnabled(value);
+                          finance.updateIncognitoEnabled(value);
                         },
                       ),
+                      if (finance.pinEnabled) ...[
+                        SwitchListTile(
+                          title: const Text('Biometric Fingerprint Lock'),
+                          subtitle: const Text('Unlock using device biometric scans'),
+                          activeColor: MoniTheme.sageGreen,
+                          value: finance.biometricEnabled,
+                          onChanged: (bool value) {
+                            finance.updateBiometricEnabled(value);
+                          },
+                        ),
+                        SwitchListTile(
+                          title: const Text('Self-Destruct Security'),
+                          subtitle: const Text('Wipe all local data after 5 failed PIN attempts'),
+                          activeColor: MoniTheme.sageGreen,
+                          value: finance.selfDestructEnabled,
+                          onChanged: (bool value) {
+                            finance.updateSelfDestructEnabled(value);
+                          },
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
