@@ -54,7 +54,7 @@ class MoniTheme {
         space: 0,
         thickness: 0,
       ),
-      tabBarTheme: const TabBarTheme(
+      tabBarTheme: const TabBarThemeData(
         dividerColor: Colors.transparent,
         indicatorColor: sageGreen,
         labelColor: sageGreen,

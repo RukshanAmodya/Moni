@@ -13,6 +13,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  double _dragPosition = 0.0;
 
   final List<Map<String, String>> _onboardingData = [
     {
@@ -159,58 +160,124 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                   const SizedBox(height: 28),
 
-                  // Button
-                  GestureDetector(
-                    onTap: () {
-                      if (_currentPage < _onboardingData.length - 1) {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                      } else {
-                        _finishOnboarding();
-                      }
-                    },
-                    child: Container(
-                      height: 56,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: MoniTheme.blackAccent,
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            height: 40,
+                  // Button (Slideable on final page, tap to next page on other pages)
+                  Builder(
+                    builder: (context) {
+                      final isFinalPage = _currentPage == _onboardingData.length - 1;
+                      if (!isFinalPage) {
+                        return GestureDetector(
+                          onTap: () {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          },
+                          child: Container(
+                            height: 56,
+                            width: double.infinity,
                             decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
+                              color: MoniTheme.blackAccent,
+                              borderRadius: BorderRadius.circular(28),
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            alignment: Alignment.center,
-                            child: Text(
-                              _currentPage == _onboardingData.length - 1 ? 'Get Started' : 'Next Step',
-                              style: const TextStyle(
-                                color: MoniTheme.blackAccent,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(right: 16.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Icon(Icons.chevron_right, color: Colors.white, size: 20),
-                                Icon(Icons.chevron_right, color: Colors.white, size: 20),
+                                Container(
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                                  alignment: Alignment.center,
+                                  child: const Text(
+                                    'Next Step',
+                                    style: TextStyle(
+                                      color: MoniTheme.blackAccent,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 16.0),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.chevron_right, color: Colors.white, size: 20),
+                                      Icon(Icons.chevron_right, color: Colors.white, size: 20),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
+                        );
+                      }
+
+                      // Slideable "Get Started" Button
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          final double maxDrag = constraints.maxWidth - 56.0;
+                          return Container(
+                            height: 56,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(28),
+                              border: Border.all(color: Colors.white.withOpacity(0.24), width: 1.5),
+                            ),
+                            child: Stack(
+                              children: [
+                                const Center(
+                                  child: Text(
+                                    'Swipe to Get Started',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: _dragPosition,
+                                  top: 1,
+                                  bottom: 1,
+                                  child: GestureDetector(
+                                    onHorizontalDragUpdate: (details) {
+                                      setState(() {
+                                        _dragPosition = (_dragPosition + details.delta.dx).clamp(0.0, maxDrag);
+                                      });
+                                    },
+                                    onHorizontalDragEnd: (details) {
+                                      if (_dragPosition >= maxDrag * 0.8) {
+                                        setState(() {
+                                          _dragPosition = maxDrag;
+                                        });
+                                        _finishOnboarding();
+                                      } else {
+                                        setState(() {
+                                          _dragPosition = 0.0;
+                                        });
+                                      }
+                                    },
+                                    child: Container(
+                                      width: 50,
+                                      height: 50,
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(Icons.arrow_forward_rounded, color: MoniTheme.sageGreen, size: 22),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
