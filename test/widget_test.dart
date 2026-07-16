@@ -19,6 +19,6 @@ void main() {
     );
 
     // Verify that onboarding screen shows the title 'MONI'
-    expect(find.text('MONI'), findsOneWidget);
+    expect(find.text('Moni'), findsOneWidget);
   });
 }
