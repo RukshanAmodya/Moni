@@ -315,65 +315,106 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
     }
 
     return AlertDialog(
-      title: const Text('Add Transaction'),
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      title: const Text(
+        'New Transaction',
+        style: TextStyle(fontWeight: FontWeight.w900, color: MoniTheme.darkText, fontSize: 22),
+      ),
+      contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Income / Expense Selector Toggle
-              Row(
-                children: [
-                  Expanded(
-                    child: ChoiceChip(
-                      label: const Center(child: Text('Expense')),
-                      selected: _type == 'expense',
-                      selectedColor: Colors.redAccent.withOpacity(0.2),
-                      onSelected: (val) {
-                        if (val) {
+              // Income / Expense Sliding Toggle Custom Widget
+              Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                padding: const EdgeInsets.all(4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
                           setState(() {
                             _type = 'expense';
                             _category = finance.expenseCategories.first;
                           });
-                        }
-                      },
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _type == 'expense' ? Colors.redAccent : Colors.transparent,
+                            borderRadius: BorderRadius.circular(21),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Expense',
+                            style: TextStyle(
+                              color: _type == 'expense' ? Colors.white : MoniTheme.mutedText,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ChoiceChip(
-                      label: const Center(child: Text('Income')),
-                      selected: _type == 'income',
-                      selectedColor: Colors.green.withOpacity(0.2),
-                      onSelected: (val) {
-                        if (val) {
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
                           setState(() {
                             _type = 'income';
                             _category = finance.incomeCategories.first;
                           });
-                        }
-                      },
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _type == 'income' ? Colors.green : Colors.transparent,
+                            borderRadius: BorderRadius.circular(21),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Income',
+                            style: TextStyle(
+                              color: _type == 'income' ? Colors.white : MoniTheme.mutedText,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+
+              // Title Input
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: 'Description / Title',
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  prefixIcon: const Icon(Icons.edit_note, size: 20),
                 ),
                 validator: (val) => val == null || val.isEmpty ? 'Please enter a title' : null,
               ),
               const SizedBox(height: 16),
+
+              // Amount Input
               TextFormField(
                 controller: _amountController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Amount',
-                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  prefixIcon: const Icon(Icons.payments_outlined, size: 20),
                 ),
                 validator: (val) {
                   if (val == null || val.isEmpty) return 'Please enter amount';
@@ -382,10 +423,16 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 },
               ),
               const SizedBox(height: 16),
-              // Category Dropdown
+
+              // Category Selector
               DropdownButtonFormField<String>(
                 value: _category,
-                decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: 'Category',
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                ),
                 items: categories
                     .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
                     .toList(),
@@ -398,10 +445,16 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 },
               ),
               const SizedBox(height: 16),
-              // Wallet Dropdown
+
+              // Wallet Selector
               DropdownButtonFormField<String>(
                 value: _walletId,
-                decoration: const InputDecoration(labelText: 'Wallet / Account', border: OutlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: 'Wallet / Account',
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                ),
                 items: finance.wallets
                     .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name)))
                     .toList(),
@@ -414,22 +467,31 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 },
               ),
               const SizedBox(height: 16),
-              // Recurring Checkbox
+
+              // Recurring Settings
               CheckboxListTile(
-                title: const Text('Recurring Transaction'),
+                title: const Text('Recurring Schedule', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                 value: _isRecurring,
+                activeColor: MoniTheme.sageGreen,
                 onChanged: (val) {
                   setState(() {
                     _isRecurring = val ?? false;
                     _recurrenceInterval = _isRecurring ? 'monthly' : 'none';
                   });
                 },
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
               ),
               if (_isRecurring) ...[
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _recurrenceInterval,
-                  decoration: const InputDecoration(labelText: 'Interval', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: 'Interval',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  ),
                   items: const [
                     DropdownMenuItem(value: 'daily', child: Text('Daily')),
                     DropdownMenuItem(value: 'weekly', child: Text('Weekly')),
@@ -448,12 +510,20 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
           ),
         ),
       ),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: const Text('Cancel', style: TextStyle(color: MoniTheme.mutedText, fontWeight: FontWeight.bold)),
         ),
-        TextButton(
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: MoniTheme.blackAccent,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          ),
           onPressed: () {
             if (_formKey.currentState!.validate()) {
               final amount = double.tryParse(_amountController.text) ?? 0.0;
@@ -472,7 +542,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               Navigator.pop(context);
             }
           },
-          child: const Text('Add', style: TextStyle(color: MoniTheme.sageGreen)),
+          child: const Text('Add Transaction', style: TextStyle(fontWeight: FontWeight.bold)),
         ),
       ],
     );
