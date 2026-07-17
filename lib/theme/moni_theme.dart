@@ -2,21 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class MoniTheme {
-  // Color Palette from Apixer Concept
-  static const Color sageGreen = Color(0xFF9CAF9A);
-  static const Color sageGreenLight = Color(0xFFDCE3DC);
-  static const Color background = Color(0xFFF4F6F4);
+  // Color Palette from Purple Mockup Concept
+  static const Color sageGreen = Color(0xFF8A72F6); // primary brand purple
+  static const Color sageGreenLight = Color(0xFFE8E5FF);
+  static const Color background = Color(0xFFF6F7FB); // off-white
   static const Color cardBg = Colors.white;
-  static const Color blackAccent = Color(0xFF111311);
-  static const Color darkText = Color(0xFF1E201E);
-  static const Color mutedText = Color(0xFF767A76);
+  static const Color blackAccent = Color(0xFF1E2022);
+  static const Color darkText = Color(0xFF1B1D20);
+  static const Color mutedText = Color(0xFF8A92A6);
 
   // Pastels for categories / accents
-  static const Color pastelBlue = Color(0xFFB3C5E5);
-  static const Color pastelPink = Color(0xFFE5B3C9);
-  static const Color pastelPurple = Color(0xFFC7B3E5);
-  static const Color pastelGreen = Color(0xFFB3E5BA);
-  static const Color pastelOrange = Color(0xFFE5C4B3);
+  static const Color pastelBlue = Color(0xFF4FA0FF);
+  static const Color pastelPink = Color(0xFFFF5290);
+  static const Color pastelPurple = Color(0xFF9070FF);
+  static const Color pastelGreen = Color(0xFF2FD180);
+  static const Color pastelOrange = Color(0xFFFF854A);
 
   static ThemeData get lightTheme {
     return ThemeData(

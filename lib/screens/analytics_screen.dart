@@ -1,10 +1,9 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../providers/finance_provider.dart';
 import '../theme/moni_theme.dart';
-import '../models/finance_models.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -14,23 +13,59 @@ class AnalyticsScreen extends StatefulWidget {
 }
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
-  String _timeRange = 'Week';
-  int? _hoveredBarIndex;
+  String _activeTab = 'Expenses'; // 'Expenses' or 'Income'
 
   @override
   Widget build(BuildContext context) {
     final finance = Provider.of<FinanceProvider>(context);
     final currencySymbol = finance.currency;
 
-    // Calculate category breakdown percentages for current month
-    final expenseMap = _calculateCategoryExpenses(finance.transactions);
-    final double totalExpenses = expenseMap.values.fold(0.0, (sum, val) => sum + val);
+    // Filter sum calculations
+    double totalExpenses = finance.transactions
+        .where((tx) => tx.type == 'expense')
+        .fold(0.0, (sum, tx) => sum + tx.amount);
 
-    // Calculate monthly savings trend (last 6 months)
-    final savingsTrend = _calculateSavingsTrend(finance.transactions);
-    final maxSavings = savingsTrend.values.isEmpty
-        ? 1.0
-        : savingsTrend.values.reduce((a, b) => a > b ? a : b);
+    double totalIncome = finance.transactions
+        .where((tx) => tx.type == 'income')
+        .fold(0.0, (sum, tx) => sum + tx.amount);
+
+    final displayAmount = _activeTab == 'Expenses' ? totalExpenses : totalIncome;
+
+    // Categories and sum data matching mockup
+    final List<Map<String, dynamic>> mockReportItems = [
+      {
+        'name': 'Groceries',
+        'amount': displayAmount * 0.31,
+        'percent': 31.0,
+        'color': MoniTheme.pastelBlue,
+        'icon': Icons.local_grocery_store_rounded,
+        'trend': '+12% vs last month',
+      },
+      {
+        'name': 'Clothing & Shoes',
+        'amount': displayAmount * 0.248,
+        'percent': 24.8,
+        'color': MoniTheme.pastelOrange,
+        'icon': Icons.checkroom_rounded,
+        'trend': '+6% vs last month',
+      },
+      {
+        'name': 'Utilities & Rent',
+        'amount': displayAmount * 0.202,
+        'percent': 20.2,
+        'color': MoniTheme.pastelPurple,
+        'icon': Icons.flash_on_rounded,
+        'trend': '-2% vs last month',
+      },
+      {
+        'name': 'Others',
+        'amount': displayAmount * 0.24,
+        'percent': 24.0,
+        'color': MoniTheme.pastelGreen,
+        'icon': Icons.more_horiz_rounded,
+        'trend': '+1% vs last month',
+      },
+    ];
 
     return Scaffold(
       backgroundColor: MoniTheme.background,
@@ -41,281 +76,292 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 10),
-              // Screen Header (similar to Screen 3: "Active Users Detail")
+              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Expense Breakdown',
-                    style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 22),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                        onPressed: () {},
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Report',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.notifications_none_rounded, size: 28),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10),
+                      ],
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('November 2025', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: MoniTheme.darkText)),
+                        SizedBox(width: 4),
+                        Icon(Icons.keyboard_arrow_down_rounded, size: 14),
+                      ],
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 20),
 
-              // Pie Chart container (Screen 3 Adaption)
+              // Pill Toggle Swticher
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: MoniTheme.premiumCardDecoration,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Category Distribution',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            _timeRange,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    // Pie Chart
-                    totalExpenses == 0
-                        ? const SizedBox(
-                            height: 180,
-                            child: Center(child: Text('No expenses recorded for this month')),
-                          )
-                        : SizedBox(
-                            height: 180,
-                            child: PieChart(
-                              PieChartData(
-                                sectionsSpace: 4,
-                                centerSpaceRadius: 50,
-                                sections: _buildPieChartSections(expenseMap, totalExpenses),
-                              ),
-                            ),
-                          ),
-                    const SizedBox(height: 20),
-                    // Legend / Breakdown labels
-                    _buildLegend(expenseMap, totalExpenses),
-                  ],
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(24),
                 ),
-              ),
-              const SizedBox(height: 24),
-
-              // Monthly Savings Trend Container (Screen 3 Adaptation: "User Activity Trend")
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: MoniTheme.premiumCardDecoration,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                padding: const EdgeInsets.all(4),
+                child: Row(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Monthly Savings Trend',
-                              style: Theme.of(context).textTheme.titleMedium,
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _activeTab = 'Expenses'),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _activeTab == 'Expenses' ? Colors.white : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Expenses',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: _activeTab == 'Expenses' ? MoniTheme.darkText : MoniTheme.mutedText,
                             ),
-                            Text(
-                              'Income vs Expense gap',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ],
+                          ),
                         ),
-                        Text(
-                          '6 Months',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade600),
-                        ),
-                      ],
+                      ),
                     ),
-                    const SizedBox(height: 30),
-                    // Savings Trend Custom Bar Chart
-                    SizedBox(
-                      height: 180,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: List.generate(savingsTrend.length, (index) {
-                          final key = savingsTrend.keys.elementAt(index);
-                          final amount = savingsTrend[key] ?? 0.0;
-                          final displayAmount = amount < 0 ? 0.0 : amount;
-                          final heightRatio = displayAmount / (maxSavings > 0 ? maxSavings : 1.0);
-                          final barHeight = 110 * (heightRatio > 0.05 ? heightRatio : 0.05);
-
-                          final isHovered = _hoveredBarIndex == index;
-
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _hoveredBarIndex = isHovered ? null : index;
-                              });
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                if (isHovered && amount != 0)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: MoniTheme.blackAccent,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      '${NumberFormat.compact().format(amount)}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                const SizedBox(height: 4),
-                                Container(
-                                  width: 26,
-                                  height: barHeight,
-                                  decoration: BoxDecoration(
-                                    color: isHovered ? MoniTheme.blackAccent : MoniTheme.sageGreen,
-                                    borderRadius: BorderRadius.circular(13),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  key,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: isHovered ? MoniTheme.blackAccent : MoniTheme.mutedText,
-                                  ),
-                                ),
-                              ],
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _activeTab = 'Income'),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: _activeTab == 'Income' ? Colors.white : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Income',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: _activeTab == 'Income' ? MoniTheme.darkText : MoniTheme.mutedText,
                             ),
-                          );
-                        }),
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
+
+              const SizedBox(height: 24),
+
+              // Expenses Report Subheading + icons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '$_activeTab Report',
+                    style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: MoniTheme.darkText),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.bar_chart_rounded, size: 16, color: MoniTheme.mutedText),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: MoniTheme.sageGreen.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.pie_chart_rounded, size: 16, color: MoniTheme.sageGreen),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               const SizedBox(height: 20),
+
+              // Donut Chart Vector Display
+              Center(
+                child: SizedBox(
+                  width: 180,
+                  height: 180,
+                  child: CustomPaint(
+                    painter: ReportDonutPainter(
+                      items: mockReportItems,
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Total $_activeTab', style: const TextStyle(fontSize: 11, color: MoniTheme.mutedText)),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$currencySymbol ${NumberFormat('#,##0.00').format(displayAmount)}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: MoniTheme.darkText),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Legend Title block
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('All $_activeTab', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: MoniTheme.mutedText)),
+                  Text(
+                    'Total $currencySymbol ${NumberFormat('#,##0.00').format(displayAmount)}',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: MoniTheme.darkText),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Category Legend Card lists
+              ...mockReportItems.map((item) {
+                final color = item['color'] as Color;
+                final amount = item['amount'] as double;
+                final percent = item['percent'] as double;
+                final trend = item['trend'] as String;
+                final icon = item['icon'] as IconData;
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: MoniTheme.premiumCardDecoration,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: color.withOpacity(0.12),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(icon, color: color, size: 18),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(item['name'] as String, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                                Text('$percent% of total', style: const TextStyle(color: MoniTheme.mutedText, fontSize: 11)),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '$currencySymbol ${NumberFormat('#,##0.00').format(amount)}',
+                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                trend,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: trend.startsWith('+') ? Colors.green : Colors.redAccent,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      // Progress Line indicator
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: percent / 100,
+                          minHeight: 6,
+                          backgroundColor: Colors.grey.shade100,
+                          valueColor: AlwaysStoppedAnimation<Color>(color),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+
+              const SizedBox(height: 30),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  Map<String, double> _calculateCategoryExpenses(List<Transaction> txs) {
-    final map = <String, double>{};
-    final now = DateTime.now();
-    for (var tx in txs) {
-      if (tx.type == 'expense' && tx.date.year == now.year && tx.date.month == now.month) {
-        map[tx.category] = (map[tx.category] ?? 0.0) + tx.amount;
-      }
-    }
-    return map;
-  }
+class ReportDonutPainter extends CustomPainter {
+  final List<Map<String, dynamic>> items;
 
-  Map<String, double> _calculateSavingsTrend(List<Transaction> txs) {
-    final map = <String, double>{};
-    final now = DateTime.now();
+  ReportDonutPainter({required this.items});
 
-    // Last 6 months in chronological order
-    for (int i = 5; i >= 0; i--) {
-      final date = DateTime(now.year, now.month - i, 1);
-      final monthName = DateFormat('MMM').format(date);
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double radius = min(size.width / 2, size.height / 2);
+    final Offset center = Offset(size.width / 2, size.height / 2);
+    final double strokeWidth = radius * 0.28;
 
-      double income = 0.0;
-      double expense = 0.0;
+    final Paint paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..isAntiAlias = true;
 
-      for (var tx in txs) {
-        if (tx.date.year == date.year && tx.date.month == date.month) {
-          if (tx.type == 'income') {
-            income += tx.amount;
-          } else {
-            expense += tx.amount;
-          }
-        }
-      }
-      map[monthName] = income - expense;
-    }
-    return map;
-  }
+    double startAngle = -pi / 2;
 
-  List<PieChartSectionData> _buildPieChartSections(Map<String, double> data, double total) {
-    int index = 0;
-    final colors = [
-      MoniTheme.sageGreen,
-      MoniTheme.pastelBlue,
-      MoniTheme.pastelPink,
-      MoniTheme.pastelPurple,
-      MoniTheme.pastelOrange,
-    ];
+    for (var item in items) {
+      final double percent = (item['percent'] as double) / 100;
+      final double sweepAngle = percent * 2 * pi;
+      paint.color = item['color'] as Color;
 
-    return data.entries.map((e) {
-      final percentage = (e.value / total) * 100;
-      final color = colors[index % colors.length];
-      index++;
-
-      return PieChartSectionData(
-        color: color,
-        value: e.value,
-        title: '${percentage.toStringAsFixed(0)}%',
-        radius: 35,
-        titleStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
+        startAngle,
+        sweepAngle,
+        false,
+        paint,
       );
-    }).toList();
+
+      startAngle += sweepAngle;
+    }
   }
 
-  Widget _buildLegend(Map<String, double> data, double total) {
-    int index = 0;
-    final colors = [
-      MoniTheme.sageGreen,
-      MoniTheme.pastelBlue,
-      MoniTheme.pastelPink,
-      MoniTheme.pastelPurple,
-      MoniTheme.pastelOrange,
-    ];
-
-    return Wrap(
-      spacing: 16,
-      runSpacing: 10,
-      children: data.entries.map((e) {
-        final color = colors[index % colors.length];
-        index++;
-        final percentage = (e.value / total) * 100;
-
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '${e.key} (${percentage.toStringAsFixed(0)}%)',
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-            ),
-          ],
-        );
-      }).toList(),
-    );
-  }
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

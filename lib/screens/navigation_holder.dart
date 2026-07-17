@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import '../theme/moni_theme.dart';
 import 'dashboard_screen.dart';
-import 'transactions_screen.dart';
 import 'analytics_screen.dart';
+import 'plan_screen.dart';
 import 'settings_screen.dart';
+import 'transactions_screen.dart'; // to open the AddTransactionDialog
 
 class NavigationHolder extends StatefulWidget {
   const NavigationHolder({super.key});
@@ -17,8 +18,8 @@ class _NavigationHolderState extends State<NavigationHolder> {
 
   final List<Widget> _screens = [
     const DashboardScreen(),
-    const TransactionsScreen(),
     const AnalyticsScreen(),
+    const PlanScreen(),
     const SettingsScreen(),
   ];
 
@@ -42,7 +43,8 @@ class _NavigationHolderState extends State<NavigationHolder> {
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryActive = Color(0xFF8A72F6); // Premium purple from design
+    const Color primaryActive = Color(0xFF8A72F6); // Brand purple
+    const Color lightPurpleFAB = Color(0xFFE5E2FF); // Light purple circle FAB
 
     return Scaffold(
       backgroundColor: MoniTheme.background,
@@ -71,7 +73,7 @@ class _NavigationHolderState extends State<NavigationHolder> {
                 borderRadius: BorderRadius.circular(38),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withOpacity(0.03),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -81,25 +83,25 @@ class _NavigationHolderState extends State<NavigationHolder> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Expanded(child: _buildNavItem(0, Icons.home_filled, 'Home', primaryActive)),
-                  Expanded(child: _buildNavItem(1, Icons.swap_horiz_rounded, 'Ledger', primaryActive)),
+                  Expanded(child: _buildNavItem(0, Icons.home_rounded, 'Home', primaryActive)),
+                  Expanded(child: _buildNavItem(1, Icons.bar_chart_rounded, 'Report', primaryActive)),
                   
-                  // Center Floating Action Button
+                  // Center Floating Action Button (light purple, matching mockup)
                   GestureDetector(
                     onTap: _showAddTransactionDialog,
                     child: Container(
-                      width: 54,
-                      height: 54,
+                      width: 52,
+                      height: 52,
                       decoration: const BoxDecoration(
-                        color: MoniTheme.blackAccent,
+                        color: lightPurpleFAB,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.add, color: Colors.white, size: 28),
+                      child: const Icon(Icons.add, color: primaryActive, size: 28),
                     ),
                   ),
 
-                  Expanded(child: _buildNavItem(2, Icons.analytics_rounded, 'Analytics', primaryActive)),
-                  Expanded(child: _buildNavItem(3, Icons.person_rounded, 'Settings', primaryActive)),
+                  Expanded(child: _buildNavItem(2, Icons.track_changes_rounded, 'Plan', primaryActive)),
+                  Expanded(child: _buildNavItem(3, Icons.settings_rounded, 'Settings', primaryActive)),
                 ],
               ),
             ),
