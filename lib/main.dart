@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'providers/finance_provider.dart';
 import 'providers/auth_provider.dart';
 import 'theme/moni_theme.dart';
-import 'screens/onboarding_screen.dart';
-import 'screens/navigation_holder.dart';
-import 'screens/pin_lock_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // Lock orientation to portrait
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   // Initialize Firebase
   try {
     await Firebase.initializeApp();
@@ -24,64 +28,28 @@ void main() async {
   final financeProvider = FinanceProvider();
   await financeProvider.init();
 
-  final prefs = await SharedPreferences.getInstance();
-  final hasSeenOnboarding = prefs.getBool('moni_onboarding_seen') ?? false;
-
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => financeProvider),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
-      child: MyApp(hasSeenOnboarding: hasSeenOnboarding),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final bool hasSeenOnboarding;
-
-  const MyApp({super.key, required this.hasSeenOnboarding});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final finance = Provider.of<FinanceProvider>(context);
-
-    Widget homeWidget;
-    if (finance.pinEnabled) {
-      homeWidget = PinLockScreen(
-        isSettingPin: false,
-        onSuccess: (pinContext) {
-          if (hasSeenOnboarding) {
-            _goToNavigation(pinContext);
-          } else {
-            _goToOnboarding(pinContext);
-          }
-        },
-      );
-    } else {
-      homeWidget = hasSeenOnboarding 
-          ? const NavigationHolder() 
-          : const OnboardingScreen();
-    }
-
     return MaterialApp(
       title: 'Moni',
       debugShowCheckedModeBanner: false,
       theme: MoniTheme.lightTheme,
-      home: homeWidget,
-    );
-  }
-
-  void _goToNavigation(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const NavigationHolder()),
-    );
-  }
-
-  void _goToOnboarding(BuildContext context) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+      // SplashScreen handles all startup routing logic
+      home: const SplashScreen(),
     );
   }
 }

@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Moni Privacy Policy — Learn how Moni collects, uses, and protects your personal financial data." />
+  <meta name="theme-color" content="#0f1117" />
+  <title>Privacy Policy — Moni</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ===========================
+       DESIGN TOKENS & RESET
+    =========================== */
+    :root {
+      --bg-primary:    #0d0f14;
+      --bg-secondary:  #12151c;
+      --bg-card:       rgba(255, 255, 255, 0.04);
+      --bg-card-hover: rgba(255, 255, 255, 0.07);
+      --border:        rgba(255, 255, 255, 0.08);
+      --border-hover:  rgba(255, 255, 255, 0.15);
+
+      --accent-primary:   #7c6ef0;
+      --accent-secondary: #4f9ef8;
+      --accent-sage:      #5bb8a0;
+      --accent-rose:      #e07b9b;
+      --accent-amber:     #f0a943;
+
+      --text-primary:   #f0f2f8;
+      --text-secondary: #8b91a8;
+      --text-muted:     #555d75;
+
+      --gradient-hero: linear-gradient(135deg, #7c6ef0 0%, #4f9ef8 50%, #5bb8a0 100%);
+      --gradient-card: linear-gradient(135deg, rgba(124,110,240,0.12), rgba(79,158,248,0.06));
+      --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 40px rgba(124, 110, 240, 0.25);
+
+      --font-body: 'Inter', sans-serif;
+      --font-heading: 'Space Grotesk', sans-serif;
+
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+
+      --nav-height: 70px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: calc(var(--nav-height) + 24px);
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      font-size: 16px;
+      overflow-x: hidden;
+    }
+
+    ::selection {
+      background: rgba(124, 110, 240, 0.35);
+      color: #fff;
+    }
+
+    /* ===========================
+       ANIMATED BACKGROUND
+    =========================== */
+    .bg-orbs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.12;
+      animation: orbFloat 20s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: var(--accent-primary);
+      top: -200px; left: -150px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 500px; height: 500px;
+      background: var(--accent-secondary);
+      top: 30%; right: -200px;
+      animation-delay: -7s;
+    }
+
+    .orb-3 {
+      width: 400px; height: 400px;
+      background: var(--accent-sage);
+      bottom: 10%; left: 20%;
+      animation-delay: -14s;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(30px, -40px) scale(1.05); }
+      66%       { transform: translate(-20px, 30px) scale(0.95); }
+    }
+
+    /* ===========================
+       NAVBAR
+    =========================== */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-height);
+      display: flex;
+      align-items: center;
+      padding: 0 clamp(16px, 5vw, 48px);
+      background: rgba(13, 15, 20, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition), border-color var(--transition);
+    }
+
+    nav.scrolled {
+      background: rgba(13, 15, 20, 0.92);
+      border-color: var(--border-hover);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo-icon {
+      width: 36px; height: 36px;
+      background: var(--gradient-hero);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .nav-logo-text {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: var(--gradient-hero);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* ===========================
+       MAIN LAYOUT
+    =========================== */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+    }
+
+    /* ===========================
+       HERO SECTION
+    =========================== */
+    .hero {
+      padding: calc(var(--nav-height) + 64px) clamp(16px, 5vw, 48px) 80px;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(124, 110, 240, 0.12);
+      border: 1px solid rgba(124, 110, 240, 0.3);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      animation: fadeInDown 0.6s ease both;
+    }
+
+    .hero-chip::before {
+      content: '🔒';
+      font-size: 14px;
+    }
+
+    .hero h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(2.8rem, 6vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f0f2f8 0%, #a8b0cc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeInDown 0.6s 0.1s ease both;
+    }
+
+    .hero h1 span {
+      background: var(--gradient-hero);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 540px;
+      margin: 0 auto 36px;
+      animation: fadeInDown 0.6s 0.2s ease both;
+    }
+
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      animation: fadeInDown 0.6s 0.3s ease both;
+    }
+
+    .hero-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .hero-meta-item .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-sage);
+    }
+
+    /* ===========================
+       CONTENT LAYOUT
+    =========================== */
+    .content-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 clamp(16px, 5vw, 48px) 80px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .content-wrapper {
+        grid-template-columns: 1fr;
+      }
+      .toc-sidebar {
+        display: none;
+      }
+    }
+
+    /* ===========================
+       TABLE OF CONTENTS SIDEBAR
+    =========================== */
+    .toc-sidebar {
+      position: sticky;
+      top: calc(var(--nav-height) + 24px);
+    }
+
+    .toc-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      backdrop-filter: blur(12px);
+    }
+
+    .toc-title {
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .toc-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .toc-list a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .toc-list a:hover,
+    .toc-list a.active {
+      background: rgba(124, 110, 240, 0.12);
+      color: var(--accent-primary);
+    }
+
+    .toc-list a .toc-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      min-width: 18px;
+    }
+
+    .toc-list a.active .toc-num {
+      color: var(--accent-primary);
+    }
+
+    /* ===========================
+       POLICY CONTENT
+    =========================== */
+    .policy-content {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    /* ===========================
+       SECTION CARDS
+    =========================== */
+    .policy-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: clamp(24px, 4vw, 40px);
+      backdrop-filter: blur(12px);
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: sectionReveal 0.6s ease forwards;
+    }
+
+    .policy-section:hover {
+      border-color: var(--border-hover);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .section-icon {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .section-icon::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      opacity: 0.15;
+    }
+
+    .icon-violet  { background: rgba(124, 110, 240, 0.15); }
+    .icon-blue    { background: rgba(79, 158, 248, 0.15); }
+    .icon-sage    { background: rgba(91, 184, 160, 0.15); }
+    .icon-rose    { background: rgba(224, 123, 155, 0.15); }
+    .icon-amber   { background: rgba(240, 169, 67, 0.15); }
+    .icon-slate   { background: rgba(139, 145, 168, 0.15); }
+
+    .section-heading-group {
+      flex: 1;
+    }
+
+    .section-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .policy-section h2 {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .policy-section p {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+    }
+
+    .policy-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .policy-section h3 {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 24px 0 10px;
+    }
+
+    /* ===========================
+       INFO LISTS
+    =========================== */
+    .info-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .info-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      padding: 12px 14px;
+      background: rgba(255,255,255,0.025);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: background var(--transition);
+    }
+
+    .info-list li:hover {
+      background: rgba(255,255,255,0.045);
+    }
+
+    .info-list li .li-icon {
+      font-size: 16px;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* ===========================
+       HIGHLIGHT BOXES
+    =========================== */
+    .highlight-box {
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      margin: 20px 0;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      font-size: 0.9rem;
+    }
+
+    .highlight-box .hb-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .highlight-box .hb-text {
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .hb-violet {
+      background: rgba(124, 110, 240, 0.1);
+      border: 1px solid rgba(124, 110, 240, 0.2);
+    }
+
+    .hb-sage {
+      background: rgba(91, 184, 160, 0.1);
+      border: 1px solid rgba(91, 184, 160, 0.2);
+    }
+
+    .hb-amber {
+      background: rgba(240, 169, 67, 0.1);
+      border: 1px solid rgba(240, 169, 67, 0.25);
+    }
+
+    .hb-blue {
+      background: rgba(79, 158, 248, 0.1);
+      border: 1px solid rgba(79, 158, 248, 0.2);
+    }
+
+    /* ===========================
+       DATA TABLE
+    =========================== */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.88rem;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: rgba(124, 110, 240, 0.1);
+      color: var(--accent-primary);
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(124, 110, 240, 0.2);
+    }
+
+    .data-table th:first-child { border-radius: 8px 0 0 0; }
+    .data-table th:last-child  { border-radius: 0 8px 0 0; }
+
+    .data-table td {
+      padding: 10px 14px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .data-table tr:hover td {
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* ===========================
+       CONTACT SECTION
+    =========================== */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .contact-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+      transition: background var(--transition), border-color var(--transition), transform var(--transition);
+      cursor: default;
+    }
+
+    .contact-card:hover {
+      background: rgba(124, 110, 240, 0.08);
+      border-color: rgba(124, 110, 240, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .contact-card .cc-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .contact-card .cc-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .contact-card .cc-value {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      word-break: break-all;
+    }
+
+    .contact-card a {
+      color: var(--accent-primary);
+      text-decoration: none;
+    }
+
+    .contact-card a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===========================
+       FOOTER
+    =========================== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px clamp(16px, 5vw, 48px);
+      margin-top: 24px;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-logo-icon {
+      width: 32px; height: 32px;
+      background: var(--gradient-hero);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .footer-logo-text {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1.1rem;
+      background: var(--gradient-hero);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .footer-copy {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    /* ===========================
+       SCROLL TO TOP BUTTON
+    =========================== */
+    .scroll-top {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 50;
+      width: 48px; height: 48px;
+      background: var(--gradient-hero);
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: var(--shadow-glow);
+      transition: transform var(--transition), opacity var(--transition);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .scroll-top.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .scroll-top:hover {
+      transform: translateY(-4px) scale(1.05);
+    }
+
+    /* ===========================
+       PROGRESS BAR
+    =========================== */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: var(--gradient-hero);
+      z-index: 200;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 10px rgba(124, 110, 240, 0.6);
+    }
+
+    /* ===========================
+       ANIMATIONS
+    =========================== */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes sectionReveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===========================
+       BADGE / TAG
+    =========================== */
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tag-violet { background: rgba(124,110,240,0.15); color: #a99ef7; }
+    .tag-sage   { background: rgba(91,184,160,0.15);  color: #7ed6c3; }
+    .tag-blue   { background: rgba(79,158,248,0.15);  color: #7ec0fa; }
+    .tag-amber  { background: rgba(240,169,67,0.15);  color: #f5c47c; }
+
+    /* ===========================
+       DIVIDER
+    =========================== */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 20px 0;
+    }
+
+    /* ===========================
+       RESPONSIVE
+    =========================== */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2.2rem; }
+      .policy-section { padding: 20px; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .scroll-top { bottom: 20px; right: 20px; }
+      .footer-copy { text-align: left; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Reading Progress Bar -->
+  <div class="progress-bar" id="progressBar" role="progressbar" aria-label="Reading progress"></div>
+
+  <!-- Animated Background Orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav id="navbar" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="Moni Home">
+        <div class="nav-logo-icon" aria-hidden="true">💰</div>
+        <span class="nav-logo-text">Moni</span>
+      </a>
+      <span class="nav-badge">Privacy Policy</span>
+    </div>
+  </nav>
+
+  <!-- Page Wrapper -->
+  <div class="page-wrapper">
+
+    <!-- Hero -->
+    <header class="hero" role="banner">
+      <div class="hero-chip">Legal Document</div>
+      <h1>Your <span>Privacy</span> Matters</h1>
+      <p class="hero-sub">
+        We believe financial privacy is a fundamental right. This policy explains exactly
+        how Moni handles your personal and financial data — in plain language.
+      </p>
+      <div class="hero-meta">
+        <span class="hero-meta-item">
+          <span class="dot"></span>
+          Effective: July 17, 2025
+        </span>
+        <span class="hero-meta-item">
+          <span class="dot" style="background:var(--accent-secondary)"></span>
+          Version 1.0.0
+        </span>
+        <span class="hero-meta-item">
+          <span class="dot" style="background:var(--accent-amber)"></span>
+          App: Moni for Android &amp; iOS
+        </span>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="content-wrapper" role="main">
+
+      <!-- Table of Contents Sidebar -->
+      <aside class="toc-sidebar" aria-label="Table of Contents">
+        <div class="toc-card">
+          <div class="toc-title">Contents</div>
+          <ol class="toc-list" aria-label="Sections">
+            <li><a href="#overview"   id="toc-1"><span class="toc-num">01</span>Overview</a></li>
+            <li><a href="#data"       id="toc-2"><span class="toc-num">02</span>Data We Collect</a></li>
+            <li><a href="#how-use"    id="toc-3"><span class="toc-num">03</span>How We Use Data</a></li>
+            <li><a href="#firebase"   id="toc-4"><span class="toc-num">04</span>Firebase &amp; Cloud</a></li>
+            <li><a href="#biometric"  id="toc-5"><span class="toc-num">05</span>Biometrics &amp; PIN</a></li>
+            <li><a href="#camera"     id="toc-6"><span class="toc-num">06</span>Camera &amp; QR</a></li>
+            <li><a href="#sharing"    id="toc-7"><span class="toc-num">07</span>Data Sharing</a></li>
+            <li><a href="#retention"  id="toc-8"><span class="toc-num">08</span>Retention</a></li>
+            <li><a href="#rights"     id="toc-9"><span class="toc-num">09</span>Your Rights</a></li>
+            <li><a href="#children"   id="toc-10"><span class="toc-num">10</span>Children</a></li>
+            <li><a href="#changes"    id="toc-11"><span class="toc-num">11</span>Policy Changes</a></li>
+            <li><a href="#contact"    id="toc-12"><span class="toc-num">12</span>Contact Us</a></li>
+          </ol>
+        </div>
+      </aside>
+
+      <!-- Policy Sections -->
+      <div class="policy-content">
+
+        <!-- 1. Overview -->
+        <section class="policy-section" id="overview" aria-labelledby="h-overview" style="animation-delay: 0.05s;">
+          <div class="section-header">
+            <div class="section-icon icon-violet" aria-hidden="true">📋</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 01</div>
+              <h2 id="h-overview">Overview &amp; Introduction</h2>
+            </div>
+          </div>
+
+          <p>
+            Welcome to <strong>Moni</strong> — the premium personal and collaborative wealth ledger designed to give
+            you complete control over your financial life. This Privacy Policy describes how <strong>Moni</strong>
+            ("we", "us", or "our") collects, uses, protects, and shares your information when you use our mobile
+            application ("App") available on Android and iOS platforms.
+          </p>
+          <p>
+            By downloading and using Moni, you agree to the terms of this Privacy Policy. If you do not agree,
+            please uninstall the App and discontinue use immediately.
+          </p>
+
+          <div class="highlight-box hb-violet">
+            <span class="hb-icon">💡</span>
+            <div class="hb-text">
+              <strong style="color:var(--text-primary)">Our core privacy promise:</strong> Moni is designed with
+              a privacy-first architecture. Your financial transaction data is stored locally on your device and
+              is never sold to third parties or used for advertising purposes.
+            </div>
+          </div>
+
+          <p>
+            This policy applies to all features of Moni, including the real-time ledger, portfolio tracker,
+            shared collaborative ledgers, gamified savings challenges, QR identity network, and all cloud
+            synchronization features powered by Firebase.
+          </p>
+        </section>
+
+        <!-- 2. Data We Collect -->
+        <section class="policy-section" id="data" aria-labelledby="h-data" style="animation-delay: 0.1s;">
+          <div class="section-header">
+            <div class="section-icon icon-blue" aria-hidden="true">🗂️</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 02</div>
+              <h2 id="h-data">Information We Collect</h2>
+            </div>
+          </div>
+
+          <p>
+            We collect only the minimum information necessary to provide and improve the Moni experience.
+            Here is a full breakdown of what we collect and why:
+          </p>
+
+          <h3>2.1 Information You Provide Directly</h3>
+          <ul class="info-list">
+            <li>
+              <span class="li-icon">👤</span>
+              <div>
+                <strong style="color:var(--text-primary)">Account Information:</strong> Your email address,
+                display name, and password (hashed by Firebase Authentication) when you register an account.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">💳</span>
+              <div>
+                <strong style="color:var(--text-primary)">Financial Data:</strong> Transaction records (income,
+                expense, transfer), amounts, categories, dates, and notes that you enter into the App.
+                This data is stored locally and optionally synced to Firestore.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">📊</span>
+              <div>
+                <strong style="color:var(--text-primary)">Budget &amp; Portfolio Data:</strong> Budget limits,
+                portfolio asset types (stocks, crypto, commodities, real estate), and their valuations as
+                entered by you.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🎯</span>
+              <div>
+                <strong style="color:var(--text-primary)">Savings Challenges:</strong> Progress data for gamified
+                savings challenges, including weekly savings amounts and streak records.
+              </div>
+            </li>
+          </ul>
+
+          <h3>2.2 Information Collected Automatically</h3>
+          <ul class="info-list">
+            <li>
+              <span class="li-icon">📱</span>
+              <div>
+                <strong style="color:var(--text-primary)">Device Information:</strong> Device model, operating
+                system version, and unique device identifiers, used for crash reporting and compatibility.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">📈</span>
+              <div>
+                <strong style="color:var(--text-primary)">Usage Analytics:</strong> Anonymous feature usage
+                events (e.g., which screen you visit), app crash reports, and performance metrics collected
+                via Firebase Analytics and Crashlytics.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🔔</span>
+              <div>
+                <strong style="color:var(--text-primary)">Push Notification Token:</strong> A device-specific
+                FCM (Firebase Cloud Messaging) token used to deliver budget-alert notifications.
+                This token is not linked to your identity without your consent.
+              </div>
+            </li>
+          </ul>
+
+          <h3>2.3 Information We Do NOT Collect</h3>
+          <table class="data-table" aria-label="Data we do not collect">
+            <thead>
+              <tr>
+                <th>Data Type</th>
+                <th>Collected?</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Bank account or card numbers</td>
+                <td><span class="tag tag-sage">Never</span></td>
+                <td>Moni does not connect to banking APIs</td>
+              </tr>
+              <tr>
+                <td>Biometric templates (fingerprint/face data)</td>
+                <td><span class="tag tag-sage">Never</span></td>
+                <td>Processed entirely on-device by the OS</td>
+              </tr>
+              <tr>
+                <td>Real-time location / GPS data</td>
+                <td><span class="tag tag-sage">Never</span></td>
+                <td>Location is not required for any feature</td>
+              </tr>
+              <tr>
+                <td>Contacts or address book</td>
+                <td><span class="tag tag-sage">Never</span></td>
+                <td>Partner linking uses QR codes only</td>
+              </tr>
+              <tr>
+                <td>Camera images / photos saved</td>
+                <td><span class="tag tag-sage">Never</span></td>
+                <td>Camera used only for real-time QR scanning</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- 3. How We Use Data -->
+        <section class="policy-section" id="how-use" aria-labelledby="h-how-use" style="animation-delay: 0.15s;">
+          <div class="section-header">
+            <div class="section-icon icon-sage" aria-hidden="true">⚙️</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 03</div>
+              <h2 id="h-how-use">How We Use Your Information</h2>
+            </div>
+          </div>
+
+          <p>We use the information collected for the following purposes:</p>
+
+          <ul class="info-list">
+            <li>
+              <span class="li-icon">🚀</span>
+              <div>
+                <strong style="color:var(--text-primary)">Providing Core Features:</strong> To operate the
+                ledger, portfolio tracker, savings challenges, and shared collaborative budgets as described
+                in the App.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">☁️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Cloud Backup &amp; Sync:</strong> To back up your
+                transaction and portfolio data to Firestore under your authenticated account so you can
+                restore it on a new device.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🔔</span>
+              <div>
+                <strong style="color:var(--text-primary)">Notifications:</strong> To send budget-threshold
+                alerts and savings reminders via Firebase Cloud Messaging (FCM). You can opt out at any
+                time in your device notification settings.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🛡️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Security &amp; Fraud Prevention:</strong> To
+                detect and prevent unauthorized access to your account and App data using biometric
+                authentication and PIN-based locking mechanisms.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🐛</span>
+              <div>
+                <strong style="color:var(--text-primary)">Bug Fixing &amp; Improvements:</strong> To
+                diagnose technical issues and improve App performance using crash reports and anonymous
+                analytics data.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">⚖️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Legal Compliance:</strong> To comply with
+                applicable laws, respond to lawful requests from public authorities, and enforce our Terms
+                of Service.
+              </div>
+            </li>
+          </ul>
+
+          <div class="highlight-box hb-sage">
+            <span class="hb-icon">✅</span>
+            <div class="hb-text">
+              We never use your financial data for advertising profiling, sell it to data brokers,
+              or use it to infer sensitive attributes about you. Your money data is yours.
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. Firebase & Cloud -->
+        <section class="policy-section" id="firebase" aria-labelledby="h-firebase" style="animation-delay: 0.2s;">
+          <div class="section-header">
+            <div class="section-icon icon-amber" aria-hidden="true">🔥</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 04</div>
+              <h2 id="h-firebase">Firebase &amp; Cloud Services</h2>
+            </div>
+          </div>
+
+          <p>
+            Moni uses <strong>Google Firebase</strong> — a platform operated by Google LLC — to provide
+            authentication, cloud database, and push notification services. The following Firebase services
+            are integrated:
+          </p>
+
+          <ul class="info-list">
+            <li>
+              <span class="li-icon">🔐</span>
+              <div>
+                <strong style="color:var(--text-primary)">Firebase Authentication:</strong> Manages secure
+                user sign-up, login, and session management using email/password. Passwords are never stored
+                in plain text — they are managed entirely by Firebase's secure authentication infrastructure.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🗄️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Cloud Firestore:</strong> Used as an optional
+                cloud backup for your financial records. Data is stored in Google data centers and protected
+                by Google's security standards. Only you (via your authenticated account) can access your data.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">⚡</span>
+              <div>
+                <strong style="color:var(--text-primary)">Firebase Realtime Database:</strong> Powers
+                real-time shared ledger collaboration between linked partners. Only users who have mutually
+                exchanged QR codes can access shared ledger data.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">📩</span>
+              <div>
+                <strong style="color:var(--text-primary)">Firebase Cloud Messaging (FCM):</strong> Delivers
+                push notifications for budget alerts and savings reminders. You may disable notifications
+                at any time from your device settings or within the App.
+              </div>
+            </li>
+          </ul>
+
+          <div class="highlight-box hb-amber">
+            <span class="hb-icon">⚠️</span>
+            <div class="hb-text">
+              Firebase services are governed by <strong>Google's Privacy Policy</strong>
+              (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer"
+                 style="color:var(--accent-secondary)">policies.google.com/privacy</a>).
+              By using cloud features, you also agree to Google's terms of service. You may use Moni
+              in offline/local-only mode to avoid any cloud data transfer.
+            </div>
+          </div>
+
+          <p>
+            All data transmitted to Firebase is encrypted in transit using TLS and at rest using
+            AES-256 encryption by Google's infrastructure. Firebase Security Rules are in place to
+            ensure that only the authenticated account owner can read or write their own data.
+          </p>
+        </section>
+
+        <!-- 5. Biometrics & PIN -->
+        <section class="policy-section" id="biometric" aria-labelledby="h-biometric" style="animation-delay: 0.25s;">
+          <div class="section-header">
+            <div class="section-icon icon-violet" aria-hidden="true">🛡️</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 05</div>
+              <h2 id="h-biometric">Biometric Authentication &amp; PIN Security</h2>
+            </div>
+          </div>
+
+          <p>
+            Moni uses the <strong>local_auth</strong> Flutter plugin to offer Touch ID, Face ID, and PIN-based
+            locking to protect access to your financial data. Here is how we handle this sensitive capability:
+          </p>
+
+          <ul class="info-list">
+            <li>
+              <span class="li-icon">🔒</span>
+              <div>
+                <strong style="color:var(--text-primary)">On-Device Only:</strong> All biometric authentication
+                is processed entirely on your device by the operating system's Secure Enclave (iOS) or
+                Android Keystore. Moni never receives, stores, or transmits your fingerprint or facial
+                recognition data.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">📵</span>
+              <div>
+                <strong style="color:var(--text-primary)">No Remote Access:</strong> Biometric data cannot
+                be used to unlock your App remotely. Authentication is always local and device-specific.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🗑️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Self-Destruct Protocol:</strong> Moni includes
+                an optional security feature that automatically erases all locally stored financial data
+                after a configurable number of consecutive incorrect PIN attempts. This feature is entirely
+                opt-in and controlled by you.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🕶️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Privacy Vault (Incognito Mode):</strong> When
+                enabled, Incognito Mode hides all balance figures from the screen to protect your privacy
+                in public. No additional data is collected in this mode.
+              </div>
+            </li>
+          </ul>
+
+          <div class="highlight-box hb-violet">
+            <span class="hb-icon">🛡️</span>
+            <div class="hb-text">
+              If you lose access to your device, your locally stored financial data cannot be accessed
+              by others if biometric or PIN lock is enabled. We recommend always enabling this feature.
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. Camera & QR -->
+        <section class="policy-section" id="camera" aria-labelledby="h-camera" style="animation-delay: 0.3s;">
+          <div class="section-header">
+            <div class="section-icon icon-blue" aria-hidden="true">📷</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 06</div>
+              <h2 id="h-camera">Camera Access &amp; QR Code Scanning</h2>
+            </div>
+          </div>
+
+          <p>
+            Moni requests access to your device's camera solely for the purpose of scanning QR codes
+            to link with a partner's shared ledger. Here is our complete camera usage policy:
+          </p>
+
+          <ul class="info-list">
+            <li>
+              <span class="li-icon">📸</span>
+              <div>
+                <strong style="color:var(--text-primary)">Real-Time Scanning Only:</strong> The camera
+                is activated only when you explicitly open the QR Scanner screen. It is used purely to
+                decode QR codes in real-time and is deactivated as soon as you leave the screen.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🚫</span>
+              <div>
+                <strong style="color:var(--text-primary)">No Photos Saved:</strong> Moni never captures,
+                saves, or uploads photos or video recordings from your camera. The camera stream is processed
+                in memory only.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🔗</span>
+              <div>
+                <strong style="color:var(--text-primary)">QR Identity Network:</strong> Your unique QR
+                code is generated algorithmically from your user identity within the App. It contains only
+                your anonymized Moni user ID and does not expose your email, name, or any financial data.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🤝</span>
+              <div>
+                <strong style="color:var(--text-primary)">Mutual Consent for Sharing:</strong> Shared
+                ledger access requires both parties to deliberately scan each other's QR codes. There is no
+                automatic or background linking.
+              </div>
+            </li>
+          </ul>
+
+          <div class="highlight-box hb-blue">
+            <span class="hb-icon">ℹ️</span>
+            <div class="hb-text">
+              You can revoke camera permission at any time from your device Settings → Apps → Moni → Permissions.
+              Revoking camera access only disables QR scanning; all other features continue to work normally.
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. Data Sharing -->
+        <section class="policy-section" id="sharing" aria-labelledby="h-sharing" style="animation-delay: 0.35s;">
+          <div class="section-header">
+            <div class="section-icon icon-rose" aria-hidden="true">🤝</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 07</div>
+              <h2 id="h-sharing">Data Sharing &amp; Disclosure</h2>
+            </div>
+          </div>
+
+          <p>
+            We do not sell, trade, or rent your personal information to third parties.
+            We may share your data only in the following limited circumstances:
+          </p>
+
+          <ul class="info-list">
+            <li>
+              <span class="li-icon">🏢</span>
+              <div>
+                <strong style="color:var(--text-primary)">Service Providers:</strong> We share data with
+                Google Firebase (our backend infrastructure provider) solely to provide the App's features.
+                These providers are contractually bound to handle your data securely and confidentially.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">👥</span>
+              <div>
+                <strong style="color:var(--text-primary)">Linked Partners (Shared Ledger):</strong> If you
+                choose to link a shared ledger with another Moni user via QR code, that user will have access
+                to shared budget and transaction data only. Your personal transactions are never shared.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">⚖️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Legal Requirements:</strong> We may disclose
+                information if required by applicable law, court order, or governmental authority, or to
+                protect the rights, property, or safety of Moni, our users, or the public.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🔄</span>
+              <div>
+                <strong style="color:var(--text-primary)">Business Transfers:</strong> In the event of a
+                merger, acquisition, or sale of assets, your data may be transferred to the acquiring entity,
+                subject to the same privacy protections described in this policy.
+              </div>
+            </li>
+          </ul>
+
+          <div class="section-divider"></div>
+          <p>
+            <strong style="color:var(--text-primary)">We will never share your data:</strong> for targeted
+            advertising, marketing campaigns, data brokering, or any purpose not explicitly listed above.
+          </p>
+        </section>
+
+        <!-- 8. Retention -->
+        <section class="policy-section" id="retention" aria-labelledby="h-retention" style="animation-delay: 0.4s;">
+          <div class="section-header">
+            <div class="section-icon icon-amber" aria-hidden="true">⏳</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 08</div>
+              <h2 id="h-retention">Data Retention &amp; Deletion</h2>
+            </div>
+          </div>
+
+          <ul class="info-list">
+            <li>
+              <span class="li-icon">💾</span>
+              <div>
+                <strong style="color:var(--text-primary)">Local Storage:</strong> All financial data stored
+                locally on your device persists until you manually delete it, use the App's data-clear
+                function, or uninstall the App.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">☁️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Cloud Storage (Firestore):</strong> Cloud-synced
+                data is retained for as long as your account is active. If you delete your account, all
+                associated Firestore data is permanently deleted within 30 days.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🔐</span>
+              <div>
+                <strong style="color:var(--text-primary)">Authentication Records:</strong> Firebase
+                Authentication account records are deleted when you request account deletion. After deletion,
+                you will not be able to recover your account.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">📊</span>
+              <div>
+                <strong style="color:var(--text-primary)">Analytics Data:</strong> Anonymized analytics data
+                may be retained by Firebase Analytics in aggregated, non-identifiable form for up to 14 months
+                per Google's standard retention policy.
+              </div>
+            </li>
+          </ul>
+
+          <p>
+            To request deletion of your data or your account, please contact us at the email provided in
+            Section 12. We will process deletion requests within <strong>30 days</strong>.
+          </p>
+        </section>
+
+        <!-- 9. Your Rights -->
+        <section class="policy-section" id="rights" aria-labelledby="h-rights" style="animation-delay: 0.45s;">
+          <div class="section-header">
+            <div class="section-icon icon-sage" aria-hidden="true">⚖️</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 09</div>
+              <h2 id="h-rights">Your Privacy Rights</h2>
+            </div>
+          </div>
+
+          <p>
+            Depending on your region and applicable laws (including GDPR for EU residents and CCPA for
+            California residents), you may have the following rights:
+          </p>
+
+          <ul class="info-list">
+            <li>
+              <span class="li-icon">👁️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Right to Access:</strong> Request a copy of the
+                personal data we hold about you.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">✏️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Right to Rectification:</strong> Request correction
+                of inaccurate or incomplete data associated with your account.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🗑️</span>
+              <div>
+                <strong style="color:var(--text-primary)">Right to Erasure ("Right to be Forgotten"):</strong>
+                Request permanent deletion of your account and associated data.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🔒</span>
+              <div>
+                <strong style="color:var(--text-primary)">Right to Restrict Processing:</strong> Request that
+                we limit how we use your data in certain circumstances.
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">📤</span>
+              <div>
+                <strong style="color:var(--text-primary)">Right to Data Portability:</strong> Request your
+                data in a structured, machine-readable format (JSON/CSV export available within the App).
+              </div>
+            </li>
+            <li>
+              <span class="li-icon">🚫</span>
+              <div>
+                <strong style="color:var(--text-primary)">Right to Object:</strong> Object to specific
+                processing of your data, including opt-out from push notifications at any time.
+              </div>
+            </li>
+          </ul>
+
+          <p>
+            To exercise any of these rights, contact us using the details in Section 12. We will respond
+            to verified requests within <strong>30 days</strong>.
+          </p>
+        </section>
+
+        <!-- 10. Children -->
+        <section class="policy-section" id="children" aria-labelledby="h-children" style="animation-delay: 0.5s;">
+          <div class="section-header">
+            <div class="section-icon icon-rose" aria-hidden="true">👶</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 10</div>
+              <h2 id="h-children">Children's Privacy</h2>
+            </div>
+          </div>
+
+          <p>
+            Moni is not intended for use by children under the age of <strong>13 years</strong>
+            (or the applicable age of digital consent in your jurisdiction). We do not knowingly collect
+            personal information from children under this age.
+          </p>
+          <p>
+            If you believe that a child under 13 has provided us with personal information, please contact
+            us immediately. We will take prompt steps to delete such information from our systems.
+          </p>
+
+          <div class="highlight-box hb-amber">
+            <span class="hb-icon">⚠️</span>
+            <div class="hb-text">
+              Users in the European Union must be at least <strong>16 years old</strong> (or the age of
+              digital consent in their member state) to use Moni's cloud features, per GDPR Article 8.
+            </div>
+          </div>
+        </section>
+
+        <!-- 11. Policy Changes -->
+        <section class="policy-section" id="changes" aria-labelledby="h-changes" style="animation-delay: 0.55s;">
+          <div class="section-header">
+            <div class="section-icon icon-slate" aria-hidden="true">📝</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 11</div>
+              <h2 id="h-changes">Changes to This Policy</h2>
+            </div>
+          </div>
+
+          <p>
+            We may update this Privacy Policy from time to time to reflect changes in our App features,
+            legal requirements, or business practices. When we make material changes, we will:
+          </p>
+
+          <ul class="info-list">
+            <li>
+              <span class="li-icon">📬</span>
+              <div>Send a push notification to all active users (if notifications are enabled)</div>
+            </li>
+            <li>
+              <span class="li-icon">📱</span>
+              <div>Display an in-App notice upon the next launch after a significant change</div>
+            </li>
+            <li>
+              <span class="li-icon">🌐</span>
+              <div>Update the "Effective Date" at the top of this page</div>
+            </li>
+          </ul>
+
+          <p>
+            Your continued use of Moni after the effective date of a revised Privacy Policy constitutes
+            your acceptance of the changes. If you do not agree to the new terms, please stop using the App.
+          </p>
+
+          <div class="section-divider"></div>
+
+          <table class="data-table" aria-label="Policy version history">
+            <thead>
+              <tr>
+                <th>Version</th>
+                <th>Date</th>
+                <th>Summary of Changes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="tag tag-violet">v1.0.0</span></td>
+                <td>July 17, 2025</td>
+                <td>Initial privacy policy release</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- 12. Contact -->
+        <section class="policy-section" id="contact" aria-labelledby="h-contact" style="animation-delay: 0.6s;">
+          <div class="section-header">
+            <div class="section-icon icon-violet" aria-hidden="true">✉️</div>
+            <div class="section-heading-group">
+              <div class="section-num">Section 12</div>
+              <h2 id="h-contact">Contact Us</h2>
+            </div>
+          </div>
+
+          <p>
+            If you have any questions, concerns, or requests regarding this Privacy Policy or the way Moni
+            handles your data, please reach out to us:
+          </p>
+
+          <div class="contact-grid">
+            <div class="contact-card">
+              <span class="cc-icon">📧</span>
+              <div class="cc-label">Email</div>
+              <div class="cc-value">
+                <a href="mailto:privacy@moni-app.com">privacy@moni-app.com</a>
+              </div>
+            </div>
+            <div class="contact-card">
+              <span class="cc-icon">📱</span>
+              <div class="cc-label">App</div>
+              <div class="cc-value">Moni — Wealth Ledger<br/>v1.0.0</div>
+            </div>
+            <div class="contact-card">
+              <span class="cc-icon">⏱️</span>
+              <div class="cc-label">Response Time</div>
+              <div class="cc-value">Within 30 business days</div>
+            </div>
+          </div>
+
+          <div class="highlight-box hb-violet" style="margin-top:24px">
+            <span class="hb-icon">🙏</span>
+            <div class="hb-text">
+              We take every privacy inquiry seriously and are committed to resolving your concerns.
+              We will always respond to your requests as quickly as possible.
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /policy-content -->
+    </main><!-- /main -->
+
+    <!-- Footer -->
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-logo">
+          <div class="footer-logo-icon" aria-hidden="true">💰</div>
+          <span class="footer-logo-text">Moni</span>
+        </div>
+        <div class="footer-copy">
+          <div>© 2025 Moni. All rights reserved.</div>
+          <div>Premium Personal &amp; Collaborative Wealth Ledger</div>
+        </div>
+      </div>
+    </footer>
+
+  </div><!-- /page-wrapper -->
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top" title="Back to top">↑</button>
+
+  <script>
+    // ===========================
+    // READING PROGRESS BAR
+    // ===========================
+    const progressBar = document.getElementById('progressBar');
+    function updateProgress() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      progressBar.style.width = pct + '%';
+    }
+
+    // ===========================
+    // NAVBAR SCROLL EFFECT
+    // ===========================
+    const navbar = document.getElementById('navbar');
+    function updateNavbar() {
+      navbar.classList.toggle('scrolled', window.scrollY > 30);
+    }
+
+    // ===========================
+    // SCROLL TO TOP BUTTON
+    // ===========================
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+    function updateScrollBtn() {
+      scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+    }
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // ===========================
+    // TOC ACTIVE HIGHLIGHT
+    // ===========================
+    const sections = document.querySelectorAll('.policy-section[id]');
+    const tocLinks = document.querySelectorAll('.toc-list a');
+
+    function updateTOC() {
+      const scrollMid = window.scrollY + window.innerHeight * 0.4;
+      let currentId = '';
+      sections.forEach(sec => {
+        if (sec.offsetTop <= scrollMid) currentId = sec.id;
+      });
+      tocLinks.forEach(link => {
+        const href = link.getAttribute('href').replace('#', '');
+        link.classList.toggle('active', href === currentId);
+      });
+    }
+
+    // ===========================
+    // INTERSECTION OBSERVER — Section Reveal
+    // ===========================
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.animationPlayState = 'running';
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.policy-section').forEach(sec => {
+      sec.style.animationPlayState = 'paused';
+      revealObserver.observe(sec);
+    });
+
+    // ===========================
+    // THROTTLED SCROLL HANDLER
+    // ===========================
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          updateProgress();
+          updateNavbar();
+          updateScrollBtn();
+          updateTOC();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+
+    // Initial calls
+    updateProgress();
+    updateNavbar();
+    updateScrollBtn();
+    updateTOC();
+  </script>
+</body>
+</html>
