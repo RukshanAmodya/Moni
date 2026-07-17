@@ -52,6 +52,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         .where((tx) => tx.type == 'income')
         .fold(0.0, (sum, tx) => sum + tx.amount);
 
+    // Calculate weekly trend dynamically
+    final now = DateTime.now();
+    final thisWeekStart = now.subtract(Duration(days: now.weekday - 1));
+    final lastWeekStart = thisWeekStart.subtract(const Duration(days: 7));
+
+    double thisWeekNet = finance.transactions
+        .where((tx) => tx.date.isAfter(thisWeekStart))
+        .fold(0.0, (sum, tx) => sum + (tx.type == 'income' ? tx.amount : -tx.amount));
+
+    double lastWeekNet = finance.transactions
+        .where((tx) => tx.date.isAfter(lastWeekStart) && tx.date.isBefore(thisWeekStart))
+        .fold(0.0, (sum, tx) => sum + (tx.type == 'income' ? tx.amount : -tx.amount));
+
+    double weeklyDiff = thisWeekNet - lastWeekNet;
+    String trendSign = weeklyDiff >= 0 ? '+' : '-';
+    String trendText = '${trendSign}${currencySymbol.isEmpty ? '' : '$currencySymbol '}${NumberFormat('#,##0').format(weeklyDiff.abs())} than last week';
+
     return Scaffold(
       backgroundColor: MoniTheme.background,
       body: SingleChildScrollView(
@@ -64,11 +81,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Color(0xFF9F8BFF), // Top purple shade
-                    Color(0xFF8A72F6), // Main brand purple
+                    Color(0xFF9A85FE), // Soft lighter lavender shade
+                    Color(0xFF8066F6), // Main brand purple
                   ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(35),
@@ -195,9 +212,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    '+\$784 than last week',
-                    style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
+                  Text(
+                    trendText,
+                    style: const TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
