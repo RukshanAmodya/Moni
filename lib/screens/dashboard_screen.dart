@@ -150,7 +150,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    '+$784 than last week',
+                    '+\$784 than last week',
                     style: TextStyle(color: Colors.white70, fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -303,6 +303,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ...finance.transactions.take(3).map((tx) {
                       final isExpense = tx.type == 'expense';
                       final color = isExpense ? MoniTheme.pastelOrange : MoniTheme.pastelBlue;
+                      final walletName = finance.wallets.firstWhere((w) => w.id == tx.walletId, orElse: () => Wallet(id: '', name: 'Wallet', balance: 0, type: 'cash')).name;
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -333,7 +334,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    '${tx.category} • ${tx.walletName}',
+                                    '${tx.category} • $walletName',
                                     style: const TextStyle(color: MoniTheme.mutedText, fontSize: 11),
                                   ),
                                 ],
