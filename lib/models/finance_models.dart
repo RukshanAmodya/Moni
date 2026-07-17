@@ -227,3 +227,35 @@ class NotificationItem {
         type: json['type'],
       );
 }
+
+class PortfolioAsset {
+  final String id;
+  final String name;
+  final double value;
+  final String category;
+  final String shares;
+
+  PortfolioAsset({
+    required this.id,
+    required this.name,
+    required this.value,
+    required this.category,
+    required this.shares,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'value': value,
+        'category': category,
+        'shares': shares,
+      };
+
+  factory PortfolioAsset.fromJson(Map<String, dynamic> json) => PortfolioAsset(
+        id: json['id'],
+        name: json['name'],
+        value: (json['value'] as num).toDouble(),
+        category: json['category'],
+        shares: json['shares'],
+      );
+}

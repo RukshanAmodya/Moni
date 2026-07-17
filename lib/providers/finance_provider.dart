@@ -14,6 +14,7 @@ class FinanceProvider with ChangeNotifier {
   List<SavingsGoal> _goals = [];
   List<Wallet> _wallets = [];
   List<NotificationItem> _notifications = [];
+  List<PortfolioAsset> _portfolioAssets = [];
   String _currency = '';
   bool _pinEnabled = false;
   String _pinHash = '';
@@ -31,6 +32,7 @@ class FinanceProvider with ChangeNotifier {
   List<SavingsGoal> get goals => _goals;
   List<Wallet> get wallets => _wallets;
   List<NotificationItem> get notifications => _notifications;
+  List<PortfolioAsset> get portfolioAssets => _portfolioAssets;
   String get currency => _currency;
   bool get pinEnabled => _pinEnabled;
   bool get biometricEnabled => _biometricEnabled;
@@ -122,6 +124,7 @@ class FinanceProvider with ChangeNotifier {
     _goals = await _storage.loadGoals();
     _wallets = await _storage.loadWallets();
     _notifications = await _storage.loadNotifications();
+    _portfolioAssets = await _storage.loadPortfolioAssets();
     _overallMonthlyBudget = await _storage.getOverallMonthlyBudget();
     _overallWeeklyBudget = await _storage.getOverallWeeklyBudget();
     _overallDailyBudget = await _storage.getOverallDailyBudget();
@@ -640,5 +643,17 @@ class FinanceProvider with ChangeNotifier {
       await _storage.saveNotifications(_notifications);
       notifyListeners();
     }
+  }
+
+  Future<void> addPortfolioAsset(PortfolioAsset asset) async {
+    _portfolioAssets.add(asset);
+    await _storage.savePortfolioAssets(_portfolioAssets);
+    notifyListeners();
+  }
+
+  Future<void> deletePortfolioAsset(String id) async {
+    _portfolioAssets.removeWhere((item) => item.id == id);
+    await _storage.savePortfolioAssets(_portfolioAssets);
+    notifyListeners();
   }
 }

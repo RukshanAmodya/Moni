@@ -10,6 +10,7 @@ class StorageService {
   static const String _goalsFile = 'moni_goals.json';
   static const String _walletsFile = 'moni_wallets.json';
   static const String _notificationsFile = 'moni_notifications.json';
+  static const String _portfolioFile = 'moni_portfolio.json';
 
   static const String keyCurrency = 'moni_currency';
   static const String keyPinEnabled = 'moni_pin_enabled';
@@ -133,6 +134,24 @@ class StorageService {
   Future<void> saveNotifications(List<NotificationItem> items) async {
     final content = jsonEncode(items.map((item) => item.toJson()).toList());
     await _saveToFile(_notificationsFile, content);
+  }
+
+  Future<List<PortfolioAsset>> loadPortfolioAssets() async {
+    try {
+      final jsonStr = await _readFromFile(_portfolioFile);
+      final List<dynamic> decoded = jsonDecode(jsonStr);
+      return decoded.map((item) => PortfolioAsset.fromJson(item)).toList();
+    } catch (e) {
+      return [
+        PortfolioAsset(id: 'p1', name: 'Gold Savings', value: 280000.0, category: 'Commodity', shares: '10.5g'),
+        PortfolioAsset(id: 'p2', name: 'Bitcoin (BTC)', value: 185000.0, category: 'Crypto', shares: '0.015 BTC'),
+      ];
+    }
+  }
+
+  Future<void> savePortfolioAssets(List<PortfolioAsset> items) async {
+    final content = jsonEncode(items.map((item) => item.toJson()).toList());
+    await _saveToFile(_portfolioFile, content);
   }
 
   // Settings SharedPreferences

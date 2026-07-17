@@ -11,37 +11,7 @@ class SavingsChallengesScreen extends StatefulWidget {
 }
 
 class _SavingsChallengesScreenState extends State<SavingsChallengesScreen> {
-  int _streak = 12; // 12 days streak default
-
-  final List<Map<String, dynamic>> _challenges = [
-    {
-      'id': 'c1',
-      'title': '52-Week Challenge',
-      'subtitle': 'Save LKR 500 incremented weekly.',
-      'progress': 0.35,
-      'status': 'Active',
-      'icon': Icons.calendar_today_rounded,
-      'color': Color(0xFF8A72F6),
-    },
-    {
-      'id': 'c2',
-      'title': 'No-Spend Weekend',
-      'subtitle': 'Avoid non-essential expenses this Sat & Sun.',
-      'progress': 1.0,
-      'status': 'Completed',
-      'icon': Icons.block_rounded,
-      'color': MoniTheme.sageGreen,
-    },
-    {
-      'id': 'c3',
-      'title': '30-Day Budget Champ',
-      'subtitle': 'Stay under all categories budget for 30 days.',
-      'progress': 0.8,
-      'status': 'Active',
-      'icon': Icons.emoji_events_rounded,
-      'color': Colors.amber,
-    }
-  ];
+  final int _streak = 12; // Days active streak placeholder
 
   final List<Map<String, dynamic>> _badges = [
     {
@@ -66,6 +36,70 @@ class _SavingsChallengesScreenState extends State<SavingsChallengesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final finance = Provider.of<FinanceProvider>(context);
+
+    // 1. 52-Week Challenge Progress based on real Piggy Bank savings (Target: 26,000 units)
+    final double realPiggyBank = finance.piggyBankBalance;
+    final double challenge1Progress = (realPiggyBank / 26000.0).clamp(0.0, 1.0);
+    final String challenge1Status = challenge1Progress >= 1.0 ? 'Completed' : 'Active';
+
+    // 2. No-Spend Weekend Progress
+    // Check if there are any expenses logged on Saturday or Sunday of this week
+    final now = DateTime.now();
+    final weekStart = now.subtract(Duration(days: now.weekday - 1));
+    final weekendTransactions = finance.transactions.where((t) =>
+        t.type == 'expense' &&
+        t.date.isAfter(weekStart) &&
+        (t.date.weekday == DateTime.saturday || t.date.weekday == DateTime.sunday));
+    final double challenge2Progress = weekendTransactions.isEmpty ? 1.0 : 0.0;
+    final String challenge2Status = challenge2Progress >= 1.0 ? 'Completed' : 'Active';
+
+    // 3. 30-Day Budget Champ
+    // Progress is the ratio of budgets that have NOT exceeded limit
+    final activeBudgetsCount = finance.budgets.length;
+    double unexceededBudgets = 0;
+    for (var b in finance.budgets) {
+      final spent = finance.transactions
+          .where((t) =>
+              t.type == 'expense' &&
+              t.category == b.category &&
+              t.date.year == now.year &&
+              t.date.month == now.month)
+          .fold(0.0, (sum, item) => sum + item.amount);
+      if (spent <= b.limitAmount) {
+        unexceededBudgets++;
+      }
+    }
+    final double challenge3Progress = activeBudgetsCount > 0 ? (unexceededBudgets / activeBudgetsCount) : 0.0;
+    final String challenge3Status = challenge3Progress >= 1.0 ? 'Completed' : 'Active';
+
+    final List<Map<String, dynamic>> dynamicChallenges = [
+      {
+        'title': '52-Week Challenge',
+        'subtitle': 'Save LKR 26,000 incrementally via spare change.',
+        'progress': challenge1Progress,
+        'status': challenge1Status,
+        'icon': Icons.calendar_today_rounded,
+        'color': const Color(0xFF8A72F6),
+      },
+      {
+        'title': 'No-Spend Weekend',
+        'subtitle': 'Avoid logging any expenses on Saturday & Sunday.',
+        'progress': challenge2Progress,
+        'status': challenge2Status,
+        'icon': Icons.block_rounded,
+        'color': MoniTheme.sageGreen,
+      },
+      {
+        'title': '30-Day Budget Champ',
+        'subtitle': 'Stay under all budget limits for the current month.',
+        'progress': challenge3Progress,
+        'status': challenge3Status,
+        'icon': Icons.emoji_events_rounded,
+        'color': Colors.amber,
+      }
+    ];
+
     return Scaffold(
       backgroundColor: MoniTheme.background,
       appBar: AppBar(
@@ -126,7 +160,7 @@ class _SavingsChallengesScreenState extends State<SavingsChallengesScreen> {
             ),
             const SizedBox(height: 12),
 
-            ..._challenges.map((challenge) {
+            ...dynamicChallenges.map((challenge) {
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(20),

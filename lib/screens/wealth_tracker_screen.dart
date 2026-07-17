@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/moni_theme.dart';
 import '../providers/finance_provider.dart';
+import '../models/finance_models.dart';
 
 class WealthTrackerScreen extends StatefulWidget {
   const WealthTrackerScreen({super.key});
@@ -11,42 +12,12 @@ class WealthTrackerScreen extends StatefulWidget {
 }
 
 class _WealthTrackerScreenState extends State<WealthTrackerScreen> {
-  final List<Map<String, dynamic>> _portfolioItems = [
-    {
-      'name': 'Gold (24K Savings)',
-      'value': 280000.0,
-      'category': 'Commodity',
-      'change': '+4.2%',
-      'up': true,
-      'shares': '10.5g',
-    },
-    {
-      'name': 'Bitcoin (BTC)',
-      'value': 185000.0,
-      'category': 'Crypto',
-      'change': '+12.5%',
-      'up': true,
-      'shares': '0.015 BTC',
-    },
-    {
-      'name': 'Apple Inc. (AAPL)',
-      'value': 98000.0,
-      'category': 'Stock',
-      'change': '-2.1%',
-      'up': false,
-      'shares': '3 Shares',
-    }
-  ];
-
-  double get _totalAssets {
-    return _portfolioItems.fold(0.0, (sum, item) => sum + item['value']);
-  }
-
-  double get _totalLiabilities => 45000.0; // Simulated debt/liability
+  final double _totalLiabilities = 45000.0; // Simulated/actual liabilities
 
   void _showAddAssetSheet() {
     final nameController = TextEditingController();
     final valueController = TextEditingController();
+    final sharesController = TextEditingController();
     String category = 'Stock';
 
     showModalBottomSheet(
@@ -56,6 +27,7 @@ class _WealthTrackerScreenState extends State<WealthTrackerScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       builder: (context) {
+        final finance = Provider.of<FinanceProvider>(context, listen: false);
         return StatefulBuilder(
           builder: (context, setModalState) {
             return Padding(
@@ -92,6 +64,19 @@ class _WealthTrackerScreenState extends State<WealthTrackerScreen> {
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Current Valuation',
+                      filled: true,
+                      fillColor: const Color(0xFFF6F5FD),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: sharesController,
+                    decoration: InputDecoration(
+                      labelText: 'Shares / Quantity (e.g. 5 units)',
                       filled: true,
                       fillColor: const Color(0xFFF6F5FD),
                       border: OutlineInputBorder(
@@ -139,16 +124,13 @@ class _WealthTrackerScreenState extends State<WealthTrackerScreen> {
                       onPressed: () {
                         final double val = double.tryParse(valueController.text) ?? 0.0;
                         if (nameController.text.isNotEmpty && val > 0) {
-                          setState(() {
-                            _portfolioItems.add({
-                              'name': nameController.text,
-                              'value': val,
-                              'category': category,
-                              'change': '+0.0%',
-                              'up': true,
-                              'shares': '1 Unit',
-                            });
-                          });
+                          finance.addPortfolioAsset(PortfolioAsset(
+                            id: DateTime.now().millisecondsSinceEpoch.toString(),
+                            name: nameController.text,
+                            value: val,
+                            category: category,
+                            shares: sharesController.text.isNotEmpty ? sharesController.text : '1 Unit',
+                          ));
                           Navigator.pop(context);
                         }
                       },
@@ -172,7 +154,10 @@ class _WealthTrackerScreenState extends State<WealthTrackerScreen> {
   @override
   Widget build(BuildContext context) {
     final finance = Provider.of<FinanceProvider>(context);
-    final double netWorth = _totalAssets - _totalLiabilities;
+    final portfolio = finance.portfolioAssets;
+
+    final double totalAssets = portfolio.fold(0.0, (sum, item) => sum + item.value);
+    final double netWorth = totalAssets - _totalLiabilities;
 
     return Scaffold(
       backgroundColor: MoniTheme.background,
@@ -225,7 +210,7 @@ class _WealthTrackerScreenState extends State<WealthTrackerScreen> {
                           const Text('Total Assets', style: TextStyle(color: Colors.white60, fontSize: 11)),
                           const SizedBox(height: 4),
                           Text(
-                            '${finance.currency} ${_totalAssets.toStringAsFixed(0)}',
+                            '${finance.currency} ${totalAssets.toStringAsFixed(0)}',
                             style: const TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 14),
                           ),
                         ],
@@ -254,80 +239,85 @@ class _WealthTrackerScreenState extends State<WealthTrackerScreen> {
             ),
             const SizedBox(height: 12),
 
-            ..._portfolioItems.map((item) {
-              final isUp = item['up'] as bool;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
+            if (portfolio.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(24),
                 decoration: MoniTheme.premiumCardDecoration,
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: item['category'] == 'Crypto'
-                            ? Colors.orange.withOpacity(0.1)
-                            : (item['category'] == 'Stock' ? Colors.blue.withOpacity(0.1) : Colors.amber.withOpacity(0.1)),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        item['category'] == 'Crypto'
-                            ? Icons.currency_bitcoin_rounded
-                            : (item['category'] == 'Stock' ? Icons.show_chart_rounded : Icons.diamond_rounded),
-                        color: item['category'] == 'Crypto'
-                            ? Colors.orange
-                            : (item['category'] == 'Stock' ? Colors.blue : Colors.amber),
-                      ),
+                alignment: Alignment.center,
+                child: const Text('No assets registered. Tap + to add assets.', style: TextStyle(color: MoniTheme.mutedText, fontSize: 12)),
+              )
+            else
+              ...portfolio.map((item) {
+                return Dismissible(
+                  key: Key(item.id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(24),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item['name'],
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            item['shares'],
-                            style: const TextStyle(color: MoniTheme.mutedText, fontSize: 11),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                    child: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+                  ),
+                  onDismissed: (direction) {
+                    finance.deletePortfolioAsset(item.id);
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(16),
+                    decoration: MoniTheme.premiumCardDecoration,
+                    child: Row(
                       children: [
-                        Text(
-                          '${finance.currency} ${item['value'].toStringAsFixed(0)}',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: item.category == 'Crypto'
+                                ? Colors.orange.withOpacity(0.1)
+                                : (item.category == 'Stock' ? Colors.blue.withOpacity(0.1) : Colors.amber.withOpacity(0.1)),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            item.category == 'Crypto'
+                                ? Icons.currency_bitcoin_rounded
+                                : (item.category == 'Stock' ? Icons.show_chart_rounded : Icons.diamond_rounded),
+                            color: item.category == 'Crypto'
+                                ? Colors.orange
+                                : (item.category == 'Stock' ? Colors.blue : Colors.amber),
+                          ),
                         ),
-                        const SizedBox(height: 2),
-                        Row(
-                          children: [
-                            Icon(
-                              isUp ? Icons.arrow_drop_up_rounded : Icons.arrow_drop_down_rounded,
-                              color: isUp ? Colors.green : Colors.red,
-                              size: 16,
-                            ),
-                            Text(
-                              item['change'],
-                              style: TextStyle(
-                                color: isUp ? Colors.green : Colors.red,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item.name,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                               ),
+                              const SizedBox(height: 2),
+                              Text(
+                                item.shares,
+                                style: const TextStyle(color: MoniTheme.mutedText, fontSize: 11),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '${finance.currency} ${item.value.toStringAsFixed(0)}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                             ),
                           ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              );
-            }),
+                  ),
+                );
+              }),
             const SizedBox(height: 30),
           ],
         ),
