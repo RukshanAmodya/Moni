@@ -32,6 +32,8 @@ class _QrScannerScreenState extends State<QrScannerScreen> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    const double scanBoxSize = 250.0;
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -73,39 +75,25 @@ class _QrScannerScreenState extends State<QrScannerScreen> with SingleTickerProv
             },
           ),
 
-          // Custom Scanner Framing Overlay
-          ColorFiltered(
-            colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.55),
-              BlendMode.srcOut,
-            ),
-            child: Stack(
-              children: [
-                Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    backgroundBlendMode: BlendMode.dstOut,
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.center,
-                  child: Container(
-                    width: 250,
-                    height: 250,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                ),
-              ],
+          // Custom Overlay Painter (Leaves the middle square transparent)
+          Positioned.fill(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final double left = (constraints.maxWidth - scanBoxSize) / 2;
+                final double top = (constraints.maxHeight - scanBoxSize) / 2;
+                final scanBoxRect = Rect.fromLTWH(left, top, scanBoxSize, scanBoxSize);
+
+                return CustomPaint(
+                  painter: ScannerOverlayPainter(scanBox: scanBoxRect),
+                );
+              },
             ),
           ),
 
           // Glowing Scan Borders
           Container(
-            width: 250,
-            height: 250,
+            width: scanBoxSize,
+            height: scanBoxSize,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
               border: Border.all(color: const Color(0xFF8A72F6), width: 3.5),
@@ -156,4 +144,28 @@ class _QrScannerScreenState extends State<QrScannerScreen> with SingleTickerProv
       ),
     );
   }
+}
+
+class ScannerOverlayPainter extends CustomPainter {
+  final Rect scanBox;
+
+  ScannerOverlayPainter({required this.scanBox});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final backgroundPath = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+    final cutoutPath = Path()..addRRect(RRect.fromRectAndRadius(scanBox, const Radius.circular(24)));
+
+    // Combined path with difference to cut out the scanBox
+    final path = Path.combine(PathOperation.difference, backgroundPath, cutoutPath);
+
+    final paint = Paint()
+      ..color = Colors.black.withOpacity(0.55)
+      ..style = PaintingStyle.fill;
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
