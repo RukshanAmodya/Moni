@@ -8,6 +8,7 @@ import 'theme/moni_theme.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/navigation_holder.dart';
 import 'screens/pin_lock_screen.dart';
+import 'services/fcm_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,7 @@ void main() async {
   // Initialize Firebase
   try {
     await Firebase.initializeApp();
+    await FcmService().init();
   } catch (e) {
     // If running in environment without correct configs, fail gracefully
   }

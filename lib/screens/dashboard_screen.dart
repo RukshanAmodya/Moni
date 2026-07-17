@@ -8,6 +8,7 @@ import 'wallet_details_screen.dart';
 import '../widgets/currency_selector_sheet.dart';
 import 'navigation_holder.dart';
 import 'reports_export_screen.dart';
+import 'notifications_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -161,8 +162,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       // Notification Bell with Red Dot
                       GestureDetector(
                         onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Notifications are up to date!')),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
                           );
                         },
                         child: Stack(
