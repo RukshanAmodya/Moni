@@ -15,6 +15,7 @@ import 'financial_tips_screen.dart';
 import 'login_screen.dart';
 import 'financial_hub_screen.dart';
 import '../widgets/currency_selector_sheet.dart';
+import 'profile_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -63,73 +64,61 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Cloud Sync Status Card (Responsive Layout)
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: auth.isAuthenticated ? MoniTheme.sageGreen.withOpacity(0.08) : Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+              // Premium User Account Card
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF8A72F6), Color(0xFFAC9BFF)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: auth.isAuthenticated ? MoniTheme.sageGreen.withOpacity(0.15) : Colors.grey.shade100,
-                      child: Icon(
-                        auth.isAuthenticated ? Icons.cloud_done : Icons.cloud_off,
-                        color: auth.isAuthenticated ? MoniTheme.sageGreen : Colors.grey,
-                        size: 22,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF8A72F6).withOpacity(0.2),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
                       ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            auth.isAuthenticated ? 'Cloud Sync Active' : 'Offline Storage',
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: MoniTheme.darkText),
-                          ),
-                          Text(
-                            auth.isAuthenticated ? '${auth.user?.email}' : 'Data saved locally on your device',
-                            style: const TextStyle(fontSize: 11, color: MoniTheme.mutedText),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 24,
+                        backgroundColor: Colors.white.withOpacity(0.25),
+                        child: Text(
+                          auth.isAuthenticated ? '${auth.user?.email?[0].toUpperCase()}' : 'M',
+                          style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: auth.isAuthenticated ? Colors.redAccent.withOpacity(0.1) : MoniTheme.sageGreen.withOpacity(0.1),
-                        foregroundColor: auth.isAuthenticated ? Colors.redAccent : MoniTheme.sageGreen,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              auth.isAuthenticated ? '${auth.user?.email}' : 'Moni Account',
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.white),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              auth.isAuthenticated ? 'Tap to view identity QR & connect partners' : 'Sign in to sync cloud data and invite partners',
+                              style: const TextStyle(fontSize: 11, color: Colors.white70),
+                            ),
+                          ],
+                        ),
                       ),
-                      onPressed: () {
-                        if (auth.isAuthenticated) {
-                          auth.signOut();
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const LoginScreen()),
-                          );
-                        }
-                      },
-                      child: Text(
-                        auth.isAuthenticated ? 'Disconnect' : 'Connect',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
-                    ),
-                  ],
+                      const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
