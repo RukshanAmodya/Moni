@@ -49,11 +49,11 @@ class MyApp extends StatelessWidget {
     if (finance.pinEnabled) {
       homeWidget = PinLockScreen(
         isSettingPin: false,
-        onSuccess: () {
+        onSuccess: (pinContext) {
           if (hasSeenOnboarding) {
-            _goToNavigation(context);
+            _goToNavigation(pinContext);
           } else {
-            _goToOnboarding(context);
+            _goToOnboarding(pinContext);
           }
         },
       );

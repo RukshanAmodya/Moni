@@ -6,7 +6,7 @@ import '../theme/moni_theme.dart';
 
 class PinLockScreen extends StatefulWidget {
   final bool isSettingPin;
-  final VoidCallback? onSuccess;
+  final Function(BuildContext)? onSuccess;
 
   const PinLockScreen({
     super.key,
@@ -44,7 +44,7 @@ class _PinLockScreenState extends State<PinLockScreen> {
       if (available) {
         final authenticated = await _biometricService.authenticate();
         if (authenticated && mounted) {
-          if (widget.onSuccess != null) widget.onSuccess!();
+          if (widget.onSuccess != null) widget.onSuccess!(context);
         }
       }
     }
@@ -88,7 +88,7 @@ class _PinLockScreenState extends State<PinLockScreen> {
       } else {
         if (_enteredPin == _confirmPin) {
           await provider.setPin(_enteredPin);
-          if (widget.onSuccess != null) widget.onSuccess!();
+          if (widget.onSuccess != null) widget.onSuccess!(context);
         } else {
           setState(() {
             _enteredPin = '';
@@ -101,7 +101,7 @@ class _PinLockScreenState extends State<PinLockScreen> {
     } else {
       final isValid = await provider.verifyPin(_enteredPin);
       if (isValid) {
-        if (widget.onSuccess != null) widget.onSuccess!();
+        if (widget.onSuccess != null) widget.onSuccess!(context);
       } else {
         _failedAttempts++;
         if (provider.selfDestructEnabled && _failedAttempts >= 5) {

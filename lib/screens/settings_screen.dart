@@ -224,7 +224,7 @@ class SettingsScreen extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (_) => PinLockScreen(
                                   isSettingPin: true,
-                                  onSuccess: () => Navigator.pop(context),
+                                  onSuccess: (pinContext) => Navigator.pop(pinContext),
                                 ),
                               ),
                             );
