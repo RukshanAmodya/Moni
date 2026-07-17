@@ -41,17 +41,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> with SingleTickerProv
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: ValueListenableBuilder(
-              valueListenable: _scannerController.torchState,
-              builder: (context, state, child) {
-                switch (state) {
-                  case TorchState.off:
-                    return const Icon(Icons.flash_off_rounded, color: Colors.white);
-                  case TorchState.on:
-                    return const Icon(Icons.flash_on_rounded, color: Colors.amber);
-                }
-              },
-            ),
+            icon: const Icon(Icons.flash_on_rounded, color: Colors.white),
             onPressed: () => _scannerController.toggleTorch(),
           ),
           IconButton(
@@ -85,7 +75,6 @@ class _QrScannerScreenState extends State<QrScannerScreen> with SingleTickerProv
 
           // Custom Scanner Framing Overlay
           ColorFiltered(
-            overlayImageFilter: null,
             colorFilter: ColorFilter.mode(
               Colors.black.withOpacity(0.55),
               BlendMode.srcOut,
