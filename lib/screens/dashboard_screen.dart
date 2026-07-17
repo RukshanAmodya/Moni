@@ -5,6 +5,7 @@ import '../providers/finance_provider.dart';
 import '../theme/moni_theme.dart';
 import '../models/finance_models.dart';
 import 'wallet_details_screen.dart';
+import '../widgets/currency_selector_sheet.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -144,9 +145,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 6),
-                  Text(
-                    finance.incognitoEnabled ? '••••' : '$currencySymbol ${NumberFormat('#,##0.00').format(finance.totalBalance)}',
-                    style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                  GestureDetector(
+                    onTap: () {
+                      if (finance.currency.isEmpty) {
+                        CurrencySelectorSheet.show(context);
+                      }
+                    },
+                    child: Text(
+                      finance.incognitoEnabled ? '••••' : (currencySymbol.isEmpty ? 'Select Currency' : '$currencySymbol ${NumberFormat('#,##0.00').format(finance.totalBalance)}'),
+                      style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w900, letterSpacing: -0.5),
+                    ),
                   ),
                   const SizedBox(height: 6),
                   const Text(

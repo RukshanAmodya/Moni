@@ -19,8 +19,9 @@ class BiometricService {
       final bool didAuthenticate = await _auth.authenticate(
         localizedReason: 'Please authenticate to unlock Moni',
         options: const AuthenticationOptions(
-          biometricOnly: true,
+          biometricOnly: false,
           stickyAuth: true,
+          useErrorDialogs: true,
         ),
       );
       return didAuthenticate;

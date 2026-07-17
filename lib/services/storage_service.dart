@@ -122,7 +122,7 @@ class StorageService {
   // Settings SharedPreferences
   Future<String> getCurrency() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(keyCurrency) ?? 'LKR';
+    return prefs.getString(keyCurrency) ?? '';
   }
 
   static const String keyOverallMonthlyBudget = 'moni_overall_monthly_budget';

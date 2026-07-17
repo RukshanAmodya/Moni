@@ -5,6 +5,9 @@ import 'analytics_screen.dart';
 import 'plan_screen.dart';
 import 'settings_screen.dart';
 import 'transactions_screen.dart'; // to open the AddTransactionDialog
+import '../widgets/currency_selector_sheet.dart';
+import '../providers/finance_provider.dart';
+import 'package:provider/provider.dart';
 
 class NavigationHolder extends StatefulWidget {
   const NavigationHolder({super.key});
@@ -30,6 +33,15 @@ class NavigationHolderState extends State<NavigationHolder> {
   ];
 
   void _showAddTransactionDialog() {
+    final finance = Provider.of<FinanceProvider>(context, listen: false);
+    if (finance.currency.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a currency first!')),
+      );
+      CurrencySelectorSheet.show(context);
+      return;
+    }
+
     showGeneralDialog(
       context: context,
       barrierDismissible: true,

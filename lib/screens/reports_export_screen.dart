@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -227,15 +229,40 @@ class _ReportsExportScreenState extends State<ReportsExportScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27)),
                 ),
                 onPressed: () async {
-                  final buffer = StringBuffer();
-                  buffer.writeln('ID,Title,Amount,Type,Category,Date,Wallet');
-                  for (var tx in filteredTxs) {
-                    buffer.writeln('${tx.id},"${tx.title}",${tx.amount},${tx.type},${tx.category},${tx.date.toIso8601String()},${tx.walletId}');
+                  try {
+                    final buffer = StringBuffer();
+                    buffer.writeln('ID,Title,Amount,Type,Category,Date,Wallet');
+                    for (var tx in filteredTxs) {
+                      buffer.writeln('${tx.id},"${tx.title}",${tx.amount},${tx.type},${tx.category},${tx.date.toIso8601String()},${tx.walletId}');
+                    }
+
+                    Directory? downloadsDir;
+                    if (Platform.isAndroid) {
+                      downloadsDir = Directory('/storage/emulated/0/Download');
+                    } else {
+                      downloadsDir = await getDownloadsDirectory();
+                    }
+                    if (downloadsDir == null || !await downloadsDir.exists()) {
+                      downloadsDir = await getApplicationDocumentsDirectory();
+                    }
+
+                    final moniDir = Directory('${downloadsDir.path}/Moni');
+                    if (!await moniDir.exists()) {
+                      await moniDir.create(recursive: true);
+                    }
+
+                    final String timestamp = DateFormat('yyyy-MM-dd_HH-mm').format(DateTime.now());
+                    final File file = File('${moniDir.path}/${timestamp}_report.csv');
+                    await file.writeAsString(buffer.toString());
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Report exported to: ${file.path}')),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error exporting report: $e')),
+                    );
                   }
-                  await Clipboard.setData(ClipboardData(text: buffer.toString()));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Filtered CSV report (${filteredTxs.length} items) copied to clipboard!')),
-                  );
                 },
                 icon: const Icon(Icons.download),
                 label: const Text('Export Filtered CSV Report', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),

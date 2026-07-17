@@ -13,7 +13,7 @@ class FinanceProvider with ChangeNotifier {
   List<Budget> _budgets = [];
   List<SavingsGoal> _goals = [];
   List<Wallet> _wallets = [];
-  String _currency = 'LKR';
+  String _currency = '';
   bool _pinEnabled = false;
   String _pinHash = '';
   bool _biometricEnabled = false;

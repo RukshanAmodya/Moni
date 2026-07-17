@@ -14,6 +14,7 @@ import 'reports_export_screen.dart';
 import 'financial_tips_screen.dart';
 import 'login_screen.dart';
 import 'financial_hub_screen.dart';
+import '../widgets/currency_selector_sheet.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -145,21 +146,9 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       ListTile(
                         title: const Text('Primary Currency'),
-                        trailing: DropdownButton<String>(
-                          borderRadius: BorderRadius.circular(16),
-                          value: finance.currency,
-                          underline: const SizedBox(),
-                          items: const [
-                            DropdownMenuItem(value: 'LKR', child: Text('LKR (රු)')),
-                            DropdownMenuItem(value: 'USD', child: Text('USD (\$)')),
-                            DropdownMenuItem(value: 'INR', child: Text('INR (₹)')),
-                          ],
-                          onChanged: (val) {
-                            if (val != null) {
-                              finance.updateCurrency(val);
-                            }
-                          },
-                        ),
+                        subtitle: Text(finance.currency.isEmpty ? 'No Currency' : finance.currency, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => CurrencySelectorSheet.show(context),
                       ),
                       ListTile(
                         title: const Text('Configure Budgets'),
