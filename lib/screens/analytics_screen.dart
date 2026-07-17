@@ -15,6 +15,28 @@ class AnalyticsScreen extends StatefulWidget {
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
   String _activeTab = 'Expenses'; // 'Expenses' or 'Income'
 
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'food':
+      case 'groceries':
+        return Icons.local_grocery_store_rounded;
+      case 'transport':
+      case 'car':
+        return Icons.directions_car_filled_rounded;
+      case 'bills':
+      case 'utilities':
+        return Icons.flash_on_rounded;
+      case 'shopping':
+        return Icons.shopping_bag_rounded;
+      case 'salary':
+        return Icons.payments_rounded;
+      case 'investment':
+        return Icons.trending_up_rounded;
+      default:
+        return Icons.more_horiz_rounded;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final finance = Provider.of<FinanceProvider>(context);
@@ -30,42 +52,38 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         .fold(0.0, (sum, tx) => sum + tx.amount);
 
     final displayAmount = _activeTab == 'Expenses' ? totalExpenses : totalIncome;
+    final String targetType = _activeTab == 'Expenses' ? 'expense' : 'income';
 
-    // Categories and sum data matching mockup
-    final List<Map<String, dynamic>> mockReportItems = [
-      {
-        'name': 'Groceries',
-        'amount': displayAmount * 0.31,
-        'percent': 31.0,
-        'color': MoniTheme.pastelBlue,
-        'icon': Icons.local_grocery_store_rounded,
-        'trend': '+12% vs last month',
-      },
-      {
-        'name': 'Clothing & Shoes',
-        'amount': displayAmount * 0.248,
-        'percent': 24.8,
-        'color': MoniTheme.pastelOrange,
-        'icon': Icons.checkroom_rounded,
-        'trend': '+6% vs last month',
-      },
-      {
-        'name': 'Utilities & Rent',
-        'amount': displayAmount * 0.202,
-        'percent': 20.2,
-        'color': MoniTheme.pastelPurple,
-        'icon': Icons.flash_on_rounded,
-        'trend': '-2% vs last month',
-      },
-      {
-        'name': 'Others',
-        'amount': displayAmount * 0.24,
-        'percent': 24.0,
-        'color': MoniTheme.pastelGreen,
-        'icon': Icons.more_horiz_rounded,
-        'trend': '+1% vs last month',
-      },
+    final Map<String, double> categorySums = {};
+    for (var tx in finance.transactions) {
+      if (tx.type == targetType) {
+        categorySums[tx.category] = (categorySums[tx.category] ?? 0.0) + tx.amount;
+      }
+    }
+
+    final List<Color> presetColors = [
+      MoniTheme.pastelBlue,
+      MoniTheme.pastelOrange,
+      MoniTheme.pastelPurple,
+      MoniTheme.pastelGreen,
+      MoniTheme.pastelPink,
     ];
+
+    final List<Map<String, dynamic>> mockReportItems = [];
+    int colorIdx = 0;
+
+    categorySums.forEach((category, sum) {
+      final double percent = displayAmount > 0 ? (sum / displayAmount) * 100 : 0.0;
+      mockReportItems.add({
+        'name': category,
+        'amount': sum,
+        'percent': double.parse(percent.toStringAsFixed(1)),
+        'color': presetColors[colorIdx % presetColors.length],
+        'icon': _getCategoryIcon(category),
+        'trend': '+0% vs last month',
+      });
+      colorIdx++;
+    });
 
     return Scaffold(
       backgroundColor: MoniTheme.background,
@@ -115,7 +133,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Pill Toggle Swticher
+              // Pill Toggle Switcher
               Container(
                 width: double.infinity,
                 height: 48,
@@ -212,7 +230,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   height: 180,
                   child: CustomPaint(
                     painter: ReportDonutPainter(
-                      items: mockReportItems,
+                      items: mockReportItems.isEmpty
+                          ? [
+                              {'percent': 100.0, 'color': Colors.grey.shade200}
+                            ]
+                          : mockReportItems,
                     ),
                     child: Center(
                       child: Column(
@@ -247,76 +269,88 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Category Legend Card lists
-              ...mockReportItems.map((item) {
-                final color = item['color'] as Color;
-                final amount = item['amount'] as double;
-                final percent = item['percent'] as double;
-                final trend = item['trend'] as String;
-                final icon = item['icon'] as IconData;
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
+              // Category Cards
+              if (mockReportItems.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
                   decoration: MoniTheme.premiumCardDecoration,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: color.withOpacity(0.12),
-                              shape: BoxShape.circle,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'No $_activeTab transactions registered yet.',
+                    style: const TextStyle(color: MoniTheme.mutedText, fontSize: 12),
+                  ),
+                )
+              else
+                ...mockReportItems.map((item) {
+                  final color = item['color'] as Color;
+                  final amount = item['amount'] as double;
+                  final percent = item['percent'] as double;
+                  final trend = item['trend'] as String;
+                  final icon = item['icon'] as IconData;
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(16),
+                    decoration: MoniTheme.premiumCardDecoration,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: color.withOpacity(0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(icon, color: color, size: 18),
                             ),
-                            child: Icon(icon, color: color, size: 18),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(item['name'] as String, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+                                  Text('$percent% of total', style: const TextStyle(color: MoniTheme.mutedText, fontSize: 11)),
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text(item['name'] as String, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
-                                Text('$percent% of total', style: const TextStyle(color: MoniTheme.mutedText, fontSize: 11)),
+                                Text(
+                                  '$currencySymbol ${NumberFormat('#,##0.00').format(amount)}',
+                                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  trend,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: trend.startsWith('+') ? Colors.green : Colors.redAccent,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                '$currencySymbol ${NumberFormat('#,##0.00').format(amount)}',
-                                style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                trend,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: trend.startsWith('+') ? Colors.green : Colors.redAccent,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      // Progress Line indicator
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: percent / 100,
-                          minHeight: 6,
-                          backgroundColor: Colors.grey.shade100,
-                          valueColor: AlwaysStoppedAnimation<Color>(color),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
+                        const SizedBox(height: 12),
+                        // Progress Line indicator
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: percent / 100,
+                            minHeight: 6,
+                            backgroundColor: Colors.grey.shade100,
+                            valueColor: AlwaysStoppedAnimation<Color>(color),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
 
               const SizedBox(height: 30),
             ],
