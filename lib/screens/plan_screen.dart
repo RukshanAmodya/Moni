@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'navigation_holder.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/finance_provider.dart';
@@ -94,7 +95,9 @@ class PlanScreen extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                        onPressed: () {},
+                        onPressed: () {
+                          context.findAncestorStateOfType<NavigationHolderState>()?.setIndex(0);
+                        },
                       ),
                       const SizedBox(width: 4),
                       Text(

@@ -10,11 +10,17 @@ class NavigationHolder extends StatefulWidget {
   const NavigationHolder({super.key});
 
   @override
-  State<NavigationHolder> createState() => _NavigationHolderState();
+  State<NavigationHolder> createState() => NavigationHolderState();
 }
 
-class _NavigationHolderState extends State<NavigationHolder> {
+class NavigationHolderState extends State<NavigationHolder> {
   int _currentIndex = 0;
+
+  void setIndex(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   final List<Widget> _screens = [
     const DashboardScreen(),
