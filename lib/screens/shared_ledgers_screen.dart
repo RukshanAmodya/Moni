@@ -154,7 +154,7 @@ class _SharedLedgersScreenState extends State<SharedLedgersScreen> {
                   const SizedBox(height: 6),
                   const Text(
                     'Share wallets with roommates or partners. Live Firestore sync guarantees both stay within the budget limits.',
-                    style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13, height: 1.4),
+                    style: TextStyle(color: Colors.white70, fontSize: 13, height: 1.4),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton.icon(
