@@ -295,6 +295,14 @@ class FinanceProvider with ChangeNotifier {
         _piggyBankBalance += spareChange;
         await _storage.setPiggyBankBalance(_piggyBankBalance);
         
+        if (walletIdx != -1) {
+          final wallet = _wallets[walletIdx];
+          _wallets[walletIdx] = wallet.copyWith(balance: wallet.balance - spareChange);
+          await _storage.saveWallets(_wallets);
+        }
+      }
+    }
+
     // Exceed budget warning notification trigger
     if (transaction.type == 'expense') {
       final budgetIdx = _budgets.indexWhere((b) => b.category == transaction.category);
