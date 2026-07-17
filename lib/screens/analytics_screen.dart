@@ -15,6 +15,22 @@ class AnalyticsScreen extends StatefulWidget {
 
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
   String _activeTab = 'Expenses'; // 'Expenses' or 'Income'
+  DateTime _selectedMonth = DateTime.now();
+
+  Future<void> _selectMonth(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedMonth,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+      helpText: 'Select Report Month',
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedMonth = DateTime(picked.year, picked.month);
+      });
+    }
+  }
 
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
@@ -43,12 +59,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final finance = Provider.of<FinanceProvider>(context);
     final currencySymbol = finance.currency;
 
+    final selectedMonthTxs = finance.transactions.where((tx) {
+      return tx.date.year == _selectedMonth.year && tx.date.month == _selectedMonth.month;
+    }).toList();
+
     // Filter sum calculations
-    double totalExpenses = finance.transactions
+    double totalExpenses = selectedMonthTxs
         .where((tx) => tx.type == 'expense')
         .fold(0.0, (sum, tx) => sum + tx.amount);
 
-    double totalIncome = finance.transactions
+    double totalIncome = selectedMonthTxs
         .where((tx) => tx.type == 'income')
         .fold(0.0, (sum, tx) => sum + tx.amount);
 
@@ -56,7 +76,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     final String targetType = _activeTab == 'Expenses' ? 'expense' : 'income';
 
     final Map<String, double> categorySums = {};
-    for (var tx in finance.transactions) {
+    for (var tx in selectedMonthTxs) {
       if (tx.type == targetType) {
         categorySums[tx.category] = (categorySums[tx.category] ?? 0.0) + tx.amount;
       }
@@ -114,22 +134,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                     ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10),
-                      ],
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('November 2025', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: MoniTheme.darkText)),
-                        SizedBox(width: 4),
-                        Icon(Icons.keyboard_arrow_down_rounded, size: 14),
-                      ],
+                  GestureDetector(
+                    onTap: () => _selectMonth(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(DateFormat('MMMM yyyy').format(_selectedMonth), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: MoniTheme.darkText)),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.keyboard_arrow_down_rounded, size: 14),
+                        ],
+                      ),
                     ),
                   ),
                 ],

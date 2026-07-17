@@ -93,27 +93,48 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Logo / Title
-                  const Icon(
-                    Icons.account_balance_wallet_outlined,
-                    size: 64,
-                    color: MoniTheme.sageGreen,
+                  // Premium Icon Container
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0EFFC),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF8A72F6).withOpacity(0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.cloud_queue_rounded,
+                        size: 54,
+                        color: Color(0xFF8A72F6),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
+                  const SizedBox(height: 24),
+                  const Text(
                     'MONI CLOUD SYNC',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          letterSpacing: 3,
-                          fontWeight: FontWeight.w800,
-                          color: MoniTheme.sageGreen,
-                        ),
+                    style: TextStyle(
+                      letterSpacing: 3,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF8A72F6),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     _isSignUp ? 'Create Cloud Account' : 'Welcome Back',
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.displayMedium?.copyWith(fontSize: 28),
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                      color: MoniTheme.darkText,
+                    ),
                   ),
                   const SizedBox(height: 32),
 
@@ -123,20 +144,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       labelText: 'Email Address',
-                      prefixIcon: const Icon(Icons.email_outlined, size: 20),
+                      labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                      prefixIcon: const Icon(Icons.email_outlined, size: 20, color: Color(0xFF8A72F6)),
                       filled: true,
                       fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: MoniTheme.sageGreen, width: 2),
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: const BorderSide(color: Color(0xFF8A72F6), width: 2),
                       ),
                     ),
                     validator: (val) {
@@ -145,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
 
                   // Password Input
                   TextFormField(
@@ -153,20 +176,22 @@ class _LoginScreenState extends State<LoginScreen> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20),
+                      labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                      prefixIcon: const Icon(Icons.lock_outline_rounded, size: 20, color: Color(0xFF8A72F6)),
                       filled: true,
                       fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: MoniTheme.sageGreen, width: 2),
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: const BorderSide(color: Color(0xFF8A72F6), width: 2),
                       ),
                     ),
                     validator: (val) {
@@ -175,16 +200,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
 
                   // Submit Button
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: MoniTheme.blackAccent,
+                      backgroundColor: const Color(0xFF8A72F6),
                       foregroundColor: Colors.white,
-                      minimumSize: const Size.fromHeight(54),
+                      minimumSize: const Size.fromHeight(56),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(27),
+                        borderRadius: BorderRadius.circular(28),
                       ),
                       elevation: 0,
                     ),
@@ -197,10 +222,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           )
                         : Text(
                             _isSignUp ? 'Sign Up' : 'Sign In',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, letterSpacing: 0.5),
                           ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
 
                   // Toggle Login/SignUp
                   TextButton(
@@ -211,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     child: Text(
                       _isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up",
-                      style: const TextStyle(color: MoniTheme.sageGreen, fontWeight: FontWeight.bold),
+                      style: const TextStyle(color: Color(0xFF8A72F6), fontWeight: FontWeight.w900, fontSize: 13),
                     ),
                   ),
                 ],
