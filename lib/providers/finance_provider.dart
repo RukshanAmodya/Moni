@@ -13,6 +13,7 @@ class FinanceProvider with ChangeNotifier {
   List<Budget> _budgets = [];
   List<SavingsGoal> _goals = [];
   List<Wallet> _wallets = [];
+  List<NotificationItem> _notifications = [];
   String _currency = '';
   bool _pinEnabled = false;
   String _pinHash = '';
@@ -29,6 +30,7 @@ class FinanceProvider with ChangeNotifier {
   List<Budget> get budgets => _budgets;
   List<SavingsGoal> get goals => _goals;
   List<Wallet> get wallets => _wallets;
+  List<NotificationItem> get notifications => _notifications;
   String get currency => _currency;
   bool get pinEnabled => _pinEnabled;
   bool get biometricEnabled => _biometricEnabled;
@@ -119,6 +121,7 @@ class FinanceProvider with ChangeNotifier {
     _budgets = await _storage.loadBudgets();
     _goals = await _storage.loadGoals();
     _wallets = await _storage.loadWallets();
+    _notifications = await _storage.loadNotifications();
     _overallMonthlyBudget = await _storage.getOverallMonthlyBudget();
     _overallWeeklyBudget = await _storage.getOverallWeeklyBudget();
     _overallDailyBudget = await _storage.getOverallDailyBudget();
@@ -292,10 +295,30 @@ class FinanceProvider with ChangeNotifier {
         _piggyBankBalance += spareChange;
         await _storage.setPiggyBankBalance(_piggyBankBalance);
         
-        if (walletIdx != -1) {
-          final wallet = _wallets[walletIdx];
-          _wallets[walletIdx] = wallet.copyWith(balance: wallet.balance - spareChange);
-          await _storage.saveWallets(_wallets);
+    // Exceed budget warning notification trigger
+    if (transaction.type == 'expense') {
+      final budgetIdx = _budgets.indexWhere((b) => b.category == transaction.category);
+      final double limit = budgetIdx != -1 ? _budgets[budgetIdx].limitAmount : 0.0;
+      if (limit > 0) {
+        final double spent = _transactions
+            .where((t) =>
+                t.type == 'expense' &&
+                t.category == transaction.category &&
+                t.date.year == transaction.date.year &&
+                t.date.month == transaction.date.month)
+            .fold(0.0, (sum, item) => sum + item.amount);
+        if (spent >= limit) {
+          await addLocalNotification(
+            title: 'Budget Limit Exceeded!',
+            body: 'You have consumed 100% of your ${transaction.category} budget limit ($_currency ${limit.toStringAsFixed(0)}).',
+            type: 'alert',
+          );
+        } else if (spent >= limit * 0.8) {
+          await addLocalNotification(
+            title: 'Budget Limit Warning!',
+            body: 'You have consumed 80% of your ${transaction.category} budget limit ($_currency ${limit.toStringAsFixed(0)}).',
+            type: 'alert',
+          );
         }
       }
     }
@@ -349,6 +372,11 @@ class FinanceProvider with ChangeNotifier {
       _budgets.add(Budget(category: category, limitAmount: limit));
     }
     await _storage.saveBudgets(_budgets);
+    await addLocalNotification(
+      title: 'Budget Set',
+      body: 'Monthly budget limit for $category set to $_currency ${limit.toStringAsFixed(0)}',
+      type: 'budget',
+    );
     _notifyAndSync();
   }
 
@@ -387,6 +415,11 @@ class FinanceProvider with ChangeNotifier {
   Future<void> addGoal(SavingsGoal goal) async {
     _goals.add(goal);
     await _storage.saveGoals(_goals);
+    await addLocalNotification(
+      title: 'Goal Created',
+      body: 'Savings goal "${goal.name}" created with a target of $_currency ${goal.targetAmount.toStringAsFixed(0)}',
+      type: 'sync',
+    );
     _notifyAndSync();
   }
 
@@ -549,6 +582,11 @@ class FinanceProvider with ChangeNotifier {
             final jsonStr = jsonEncode(data);
             final success = await importBackup(jsonStr);
             if (success) {
+              await addLocalNotification(
+                title: 'Cloud Restore Complete',
+                body: 'All transaction records successfully restored from Firestore.',
+                type: 'sync',
+              );
               notifyListeners();
               return true;
             }
@@ -559,5 +597,40 @@ class FinanceProvider with ChangeNotifier {
       }
     }
     return false;
+  }
+
+  // Local Notifications logic
+  Future<void> addLocalNotification({required String title, required String body, required String type}) async {
+    final item = NotificationItem(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      body: body,
+      timestamp: DateTime.now(),
+      type: type,
+    );
+    _notifications.insert(0, item);
+    await _storage.saveNotifications(_notifications);
+    notifyListeners();
+  }
+
+  Future<void> markAllNotificationsRead() async {
+    _notifications = _notifications.map((n) => n.copyWith(isRead: true)).toList();
+    await _storage.saveNotifications(_notifications);
+    notifyListeners();
+  }
+
+  Future<void> deleteNotification(String id) async {
+    _notifications.removeWhere((n) => n.id == id);
+    await _storage.saveNotifications(_notifications);
+    notifyListeners();
+  }
+
+  Future<void> markNotificationAsRead(String id) async {
+    final idx = _notifications.indexWhere((n) => n.id == id);
+    if (idx != -1) {
+      _notifications[idx] = _notifications[idx].copyWith(isRead: true);
+      await _storage.saveNotifications(_notifications);
+      notifyListeners();
+    }
   }
 }

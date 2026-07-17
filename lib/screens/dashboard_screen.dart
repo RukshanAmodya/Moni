@@ -177,18 +177,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               ),
                               child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 20),
                             ),
-                            Positioned(
-                              right: 2,
-                              top: 2,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Colors.redAccent,
-                                  shape: BoxShape.circle,
+                            if (finance.notifications.any((n) => !n.isRead))
+                              Positioned(
+                                right: 2,
+                                top: 2,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.redAccent,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                       ),

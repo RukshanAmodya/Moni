@@ -12,36 +12,11 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  // Local list of simulated notifications (often synced with FCM payloads)
-  final List<Map<String, dynamic>> _notifications = [
-    {
-      'id': '1',
-      'title': 'Daily Expense Reminder',
-      'body': 'Don\'t forget to log your transactions for today to stay within your budget limit!',
-      'timestamp': DateTime.now().subtract(const Duration(hours: 2)),
-      'isRead': false,
-      'type': 'reminder',
-    },
-    {
-      'id': '2',
-      'title': 'Cloud Sync Completed',
-      'body': 'All your transactions and savings goals were successfully backed up to Moni Cloud.',
-      'timestamp': DateTime.now().subtract(const Duration(days: 1)),
-      'isRead': true,
-      'type': 'sync',
-    },
-    {
-      'id': '3',
-      'title': 'Budget Limit Warning',
-      'body': 'You have consumed 85% of your food budget limit for this month.',
-      'timestamp': DateTime.now().subtract(const Duration(days: 2)),
-      'isRead': true,
-      'type': 'alert',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final finance = Provider.of<FinanceProvider>(context);
+    final list = finance.notifications;
+
     return Scaffold(
       backgroundColor: MoniTheme.background,
       appBar: AppBar(
@@ -50,21 +25,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         elevation: 0,
         foregroundColor: MoniTheme.darkText,
         actions: [
-          if (_notifications.any((n) => !n['isRead']))
+          if (list.any((n) => !n.isRead))
             TextButton(
-              onPressed: () {
-                setState(() {
-                  for (var n in _notifications) {
-                    n['isRead'] = true;
-                  }
-                });
-              },
+              onPressed: () => finance.markAllNotificationsRead(),
               child: const Text('Mark all as read', style: TextStyle(color: Color(0xFF8A72F6), fontWeight: FontWeight.bold)),
             ),
         ],
       ),
       body: SafeArea(
-        child: _notifications.isEmpty
+        child: list.isEmpty
             ? Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -86,20 +55,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               )
             : ListView.builder(
                 padding: const EdgeInsets.all(20),
-                itemCount: _notifications.length,
+                itemCount: list.length,
                 itemBuilder: (context, index) {
-                  final n = _notifications[index];
-                  final bool isRead = n['isRead'];
-                  final Color typeColor = n['type'] == 'alert'
+                  final n = list[index];
+                  final bool isRead = n.isRead;
+                  final Color typeColor = n.type == 'alert'
                       ? Colors.redAccent
-                      : (n['type'] == 'sync' ? Colors.green : const Color(0xFF8A72F6));
+                      : (n.type == 'sync' ? Colors.green : const Color(0xFF8A72F6));
 
                   return Dismissible(
-                    key: Key(n['id']),
+                    key: Key(n.id),
                     onDismissed: (direction) {
-                      setState(() {
-                        _notifications.removeAt(index);
-                      });
+                      finance.deleteNotification(n.id);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Notification removed')),
                       );
@@ -131,17 +98,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       ),
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        onTap: () {
-                          setState(() {
-                            n['isRead'] = true;
-                          });
-                        },
+                        onTap: () => finance.markNotificationAsRead(n.id),
                         leading: CircleAvatar(
                           backgroundColor: typeColor.withOpacity(0.1),
                           child: Icon(
-                            n['type'] == 'alert'
+                            n.type == 'alert'
                                 ? Icons.warning_amber_rounded
-                                : (n['type'] == 'sync' ? Icons.sync_rounded : Icons.notifications_none_rounded),
+                                : (n.type == 'sync' ? Icons.sync_rounded : Icons.notifications_none_rounded),
                             color: typeColor,
                           ),
                         ),
@@ -150,7 +113,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           children: [
                             Expanded(
                               child: Text(
-                                n['title'],
+                                n.title,
                                 style: TextStyle(
                                   fontWeight: isRead ? FontWeight.bold : FontWeight.w900,
                                   fontSize: 14,
@@ -159,7 +122,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                               ),
                             ),
                             Text(
-                              DateFormat('jm').format(n['timestamp']),
+                              DateFormat('jm').format(n.timestamp),
                               style: const TextStyle(fontSize: 10, color: MoniTheme.mutedText),
                             ),
                           ],
@@ -167,7 +130,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 6.0),
                           child: Text(
-                            n['body'],
+                            n.body,
                             style: const TextStyle(fontSize: 12, color: MoniTheme.mutedText, height: 1.3),
                           ),
                         ),

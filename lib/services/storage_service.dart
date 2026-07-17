@@ -9,6 +9,7 @@ class StorageService {
   static const String _budgetsFile = 'moni_budgets.json';
   static const String _goalsFile = 'moni_goals.json';
   static const String _walletsFile = 'moni_wallets.json';
+  static const String _notificationsFile = 'moni_notifications.json';
 
   static const String keyCurrency = 'moni_currency';
   static const String keyPinEnabled = 'moni_pin_enabled';
@@ -117,6 +118,21 @@ class StorageService {
   Future<void> saveWallets(List<Wallet> wallets) async {
     final content = jsonEncode(wallets.map((w) => w.toJson()).toList());
     await _saveToFile(_walletsFile, content);
+  }
+
+  Future<List<NotificationItem>> loadNotifications() async {
+    try {
+      final jsonStr = await _readFromFile(_notificationsFile);
+      final List<dynamic> decoded = jsonDecode(jsonStr);
+      return decoded.map((item) => NotificationItem.fromJson(item)).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<void> saveNotifications(List<NotificationItem> items) async {
+    final content = jsonEncode(items.map((item) => item.toJson()).toList());
+    await _saveToFile(_notificationsFile, content);
   }
 
   // Settings SharedPreferences

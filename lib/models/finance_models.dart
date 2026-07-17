@@ -173,3 +173,57 @@ class Wallet {
     );
   }
 }
+
+class NotificationItem {
+  final String id;
+  final String title;
+  final String body;
+  final DateTime timestamp;
+  final bool isRead;
+  final String type;
+
+  NotificationItem({
+    required this.id,
+    required this.title,
+    required this.body,
+    required this.timestamp,
+    this.isRead = false,
+    required this.type,
+  });
+
+  NotificationItem copyWith({
+    String? id,
+    String? title,
+    String? body,
+    DateTime? timestamp,
+    bool? isRead,
+    String? type,
+  }) {
+    return NotificationItem(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      timestamp: timestamp ?? this.timestamp,
+      isRead: isRead ?? this.isRead,
+      type: type ?? this.type,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'body': body,
+        'timestamp': timestamp.toIso8601String(),
+        'isRead': isRead,
+        'type': type,
+      };
+
+  factory NotificationItem.fromJson(Map<String, dynamic> json) => NotificationItem(
+        id: json['id'],
+        title: json['title'],
+        body: json['body'],
+        timestamp: DateTime.parse(json['timestamp']),
+        isRead: json['isRead'] ?? false,
+        type: json['type'],
+      );
+}
