@@ -5,6 +5,7 @@ import '../theme/moni_theme.dart';
 import '../providers/auth_provider.dart';
 import '../providers/finance_provider.dart';
 import 'login_screen.dart';
+import 'qr_scanner_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,43 +14,13 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _scannerAnimationController;
-  bool _isScanning = false;
+class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _partnerIdController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _scannerAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-  }
-
-  @override
   void dispose() {
-    _scannerAnimationController.dispose();
     _partnerIdController.dispose();
     super.dispose();
-  }
-
-  void _startScanning() {
-    setState(() {
-      _isScanning = true;
-    });
-    _scannerAnimationController.repeat(reverse: true);
-
-    // Simulate scan success after 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted && _isScanning) {
-        setState(() {
-          _isScanning = false;
-        });
-        _scannerAnimationController.stop();
-        _linkPartner('asha.partner@moni.com');
-      }
-    });
   }
 
   void _linkPartner(String email) {
@@ -310,54 +281,19 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
               decoration: MoniTheme.premiumCardDecoration,
               child: Column(
                 children: [
-                  if (_isScanning) ...[
-                    // Scanning View Simulator
-                    Center(
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Container(
-                            width: 200,
-                            height: 160,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.05),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          AnimatedBuilder(
-                            animation: _scannerAnimationController,
-                            builder: (context, child) {
-                              return Positioned(
-                                top: _scannerAnimationController.value * 140 + 10,
-                                child: Container(
-                                  width: 180,
-                                  height: 3,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF8A72F6),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFF8A72F6).withOpacity(0.8),
-                                        blurRadius: 8,
-                                        spreadRadius: 2,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    const Text('Align partner\'s QR code within the frame...', style: TextStyle(fontSize: 12, color: MoniTheme.mutedText)),
-                    const SizedBox(height: 16),
-                  ],
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: _startScanning,
+                          onPressed: () async {
+                            final result = await Navigator.push<String>(
+                              context,
+                              MaterialPageRoute(builder: (_) => const QrScannerScreen()),
+                            );
+                            if (result != null && result.isNotEmpty) {
+                              _linkPartner(result);
+                            }
+                          },
                           icon: const Icon(Icons.qr_code_scanner_rounded, size: 18, color: Colors.white),
                           label: const Text('Scan QR Code', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                           style: ElevatedButton.styleFrom(
