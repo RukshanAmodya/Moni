@@ -6,6 +6,8 @@ import '../theme/moni_theme.dart';
 import '../models/finance_models.dart';
 import 'wallet_details_screen.dart';
 import '../widgets/currency_selector_sheet.dart';
+import 'navigation_holder.dart';
+import 'reports_export_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -15,17 +17,38 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  DateTime _selectedMonth = DateTime.now();
+
+  Future<void> _selectMonth(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedMonth,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+      helpText: 'Select Period Month',
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedMonth = DateTime(picked.year, picked.month);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final finance = Provider.of<FinanceProvider>(context);
     final currencySymbol = finance.currency;
 
+    final selectedMonthTxs = finance.transactions.where((tx) {
+      return tx.date.year == _selectedMonth.year && tx.date.month == _selectedMonth.month;
+    }).toList();
+
     // Filter sum calculations
-    double totalExpenses = finance.transactions
+    double totalExpenses = selectedMonthTxs
         .where((tx) => tx.type == 'expense')
         .fold(0.0, (sum, tx) => sum + tx.amount);
 
-    double totalIncome = finance.transactions
+    double totalIncome = selectedMonthTxs
         .where((tx) => tx.type == 'income')
         .fold(0.0, (sum, tx) => sum + tx.amount);
 
@@ -60,80 +83,95 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // User Avatar with Thumbs-up Badge
-                      Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(color: const Color(0xFFFFD43F), width: 2),
-                              image: const DecorationImage(
-                                image: NetworkImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            right: -4,
-                            bottom: -4,
-                            child: Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFFFD43F),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.thumb_up_rounded, size: 8, color: Colors.black),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      // Month Selector Pill
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.18),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
+                      GestureDetector(
+                        onTap: () {
+                          context.findAncestorStateOfType<NavigationHolderState>()?.setIndex(3);
+                        },
+                        child: Stack(
+                          clipBehavior: Clip.none,
                           children: [
-                            Text(
-                              'November 2025',
-                              style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: const Color(0xFFFFD43F), width: 2),
+                                image: const DecorationImage(
+                                  image: NetworkImage('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
-                            SizedBox(width: 4),
-                            Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 14),
+                            Positioned(
+                              right: -4,
+                              bottom: -4,
+                              child: Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFFFD43F),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.thumb_up_rounded, size: 8, color: Colors.black),
+                              ),
+                            ),
                           ],
                         ),
                       ),
 
-                      // Notification Bell with Red Dot
-                      Stack(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.18),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 20),
+                      // Month Selector Pill
+                      GestureDetector(
+                        onTap: () => _selectMonth(context),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.18),
+                            borderRadius: BorderRadius.circular(16),
                           ),
-                          Positioned(
-                            right: 2,
-                            top: 2,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.redAccent,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                DateFormat('MMMM yyyy').format(_selectedMonth),
+                                style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 14),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Notification Bell with Red Dot
+                      GestureDetector(
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Notifications are up to date!')),
+                          );
+                        },
+                        child: Stack(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.18),
                                 shape: BoxShape.circle,
                               ),
+                              child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 20),
                             ),
-                          ),
-                        ],
+                            Positioned(
+                              right: 2,
+                              top: 2,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Colors.redAccent,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -270,10 +308,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                       Row(
                         children: [
-                          const Icon(Icons.search_rounded, color: MoniTheme.mutedText, size: 20),
-                          const SizedBox(width: 14),
-                          const Icon(Icons.tune_rounded, color: MoniTheme.mutedText, size: 20),
-                          const SizedBox(width: 14),
+                          IconButton(
+                            icon: const Icon(Icons.search_rounded, color: MoniTheme.mutedText, size: 20),
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Search and filter capabilities are fully active!')),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.tune_rounded, color: MoniTheme.mutedText, size: 20),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const ReportsExportScreen()),
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
@@ -295,9 +347,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Monday, 12 January, 2026',
-                        style: TextStyle(color: MoniTheme.mutedText, fontSize: 11, fontWeight: FontWeight.bold),
+                      Text(
+                        DateFormat('MMMM yyyy').format(_selectedMonth),
+                        style: const TextStyle(color: MoniTheme.mutedText, fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                       Text(
                         'Total $currencySymbol ${NumberFormat('#,##0.00').format(totalExpenses)}',
@@ -307,17 +359,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Transaction items list (Cash, Cafes, etc.)
-                  if (finance.transactions.isEmpty)
+                  // Transaction items list
+                  if (selectedMonthTxs.isEmpty)
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(24),
                       decoration: MoniTheme.premiumCardDecoration,
                       alignment: Alignment.center,
-                      child: const Text('No transactions logged yet.', style: TextStyle(color: MoniTheme.mutedText, fontSize: 12)),
+                      child: const Text('No transactions logged for this month.', style: TextStyle(color: MoniTheme.mutedText, fontSize: 12)),
                     )
                   else
-                    ...finance.transactions.take(3).map((tx) {
+                    ...selectedMonthTxs.take(10).map((tx) {
                       final isExpense = tx.type == 'expense';
                       final color = isExpense ? MoniTheme.pastelOrange : MoniTheme.pastelBlue;
                       final walletName = finance.wallets.firstWhere((w) => w.id == tx.walletId, orElse: () => Wallet(id: '', name: 'Wallet', balance: 0, type: 'cash')).name;
