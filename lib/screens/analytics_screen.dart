@@ -16,6 +16,7 @@ class AnalyticsScreen extends StatefulWidget {
 class _AnalyticsScreenState extends State<AnalyticsScreen> {
   String _activeTab = 'Expenses'; // 'Expenses' or 'Income'
   DateTime _selectedMonth = DateTime.now();
+  String _selectedChart = 'Pie'; // 'Pie' or 'Bar'
 
   Future<void> _selectMonth(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -226,22 +227,28 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(8),
+                      GestureDetector(
+                        onTap: () => setState(() => _selectedChart = 'Bar'),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: _selectedChart == 'Bar' ? MoniTheme.sageGreen.withOpacity(0.15) : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.bar_chart_rounded, size: 16, color: _selectedChart == 'Bar' ? MoniTheme.sageGreen : MoniTheme.mutedText),
                         ),
-                        child: const Icon(Icons.bar_chart_rounded, size: 16, color: MoniTheme.mutedText),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: MoniTheme.sageGreen.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(8),
+                      GestureDetector(
+                        onTap: () => setState(() => _selectedChart = 'Pie'),
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: _selectedChart == 'Pie' ? MoniTheme.sageGreen.withOpacity(0.15) : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.pie_chart_rounded, size: 16, color: _selectedChart == 'Pie' ? MoniTheme.sageGreen : MoniTheme.mutedText),
                         ),
-                        child: const Icon(Icons.pie_chart_rounded, size: 16, color: MoniTheme.sageGreen),
                       ),
                     ],
                   ),
@@ -250,35 +257,42 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               const SizedBox(height: 20),
 
               // Donut Chart Vector Display
-              Center(
-                child: SizedBox(
-                  width: 180,
-                  height: 180,
-                  child: CustomPaint(
-                    painter: ReportDonutPainter(
-                      items: mockReportItems.isEmpty
-                          ? [
-                              {'percent': 100.0, 'color': Colors.grey.shade200}
-                            ]
-                          : mockReportItems,
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Total $_activeTab', style: const TextStyle(fontSize: 11, color: MoniTheme.mutedText)),
-                          const SizedBox(height: 4),
-                          Text(
-                            '$currencySymbol ${NumberFormat('#,##0.00').format(displayAmount)}',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: MoniTheme.darkText),
-                          ),
-                        ],
+              if (_selectedChart == 'Pie')
+                Center(
+                  child: SizedBox(
+                    width: 180,
+                    height: 180,
+                    child: CustomPaint(
+                      painter: ReportDonutPainter(
+                        items: mockReportItems.isEmpty
+                            ? [
+                                {'percent': 100.0, 'color': Colors.grey.shade200}
+                              ]
+                            : mockReportItems,
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Total $_activeTab', style: const TextStyle(fontSize: 11, color: MoniTheme.mutedText)),
+                            const SizedBox(height: 4),
+                            Text(
+                              '$currencySymbol ${NumberFormat('#,##0.00').format(displayAmount)}',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: MoniTheme.darkText),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
+                )
+              else
+                ReportBarChart(
+                  items: mockReportItems,
+                  total: displayAmount,
+                  currencySymbol: currencySymbol,
                 ),
-              ),
 
               const SizedBox(height: 24),
 
@@ -424,4 +438,69 @@ class ReportDonutPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+class ReportBarChart extends StatelessWidget {
+  final List<Map<String, dynamic>> items;
+  final double total;
+  final String currencySymbol;
+
+  const ReportBarChart({
+    super.key,
+    required this.items,
+    required this.total,
+    required this.currencySymbol,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return Container(
+        height: 180,
+        alignment: Alignment.center,
+        child: const Text('No transactions to display', style: TextStyle(color: MoniTheme.mutedText, fontSize: 12)),
+      );
+    }
+
+    return Container(
+      height: 180,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: items.map((item) {
+          final double percent = item['percent'] as double;
+          final Color color = item['color'] as Color;
+          final String name = item['name'] as String;
+
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                '${percent.round()}%',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: color),
+              ),
+              const SizedBox(height: 6),
+              Container(
+                width: 24,
+                height: (percent * 1.3).clamp(8.0, 110.0),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(6),
+                    topRight: Radius.circular(6),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                name.length > 5 ? name.substring(0, 5) : name,
+                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: MoniTheme.darkText),
+              ),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
 }
