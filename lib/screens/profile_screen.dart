@@ -53,6 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   }
 
   void _linkPartner(String email) {
+    final finance = Provider.of<FinanceProvider>(context, listen: false);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -67,6 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
           ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
+              finance.linkPartner(email);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Successfully linked with $email!'),
@@ -180,7 +182,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         child: ListView(
           padding: const EdgeInsets.all(20.0),
           children: [
-            // Profile Card
+             // Profile Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: MoniTheme.premiumCardDecoration,
@@ -214,6 +216,42 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 ],
               ),
             ),
+
+            // Partner Status Card
+            if (finance.partnerEmail.isNotEmpty) ...[
+              Container(
+                padding: const EdgeInsets.all(20),
+                margin: const EdgeInsets.only(top: 16),
+                decoration: BoxDecoration(
+                  color: MoniTheme.sageGreen.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: MoniTheme.sageGreen.withOpacity(0.12)),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: MoniTheme.sageGreen.withOpacity(0.15),
+                      child: const Icon(Icons.link_rounded, color: MoniTheme.sageGreen),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Linked Partner', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: MoniTheme.darkText)),
+                          const SizedBox(height: 2),
+                          Text(finance.partnerEmail, style: const TextStyle(fontSize: 12, color: MoniTheme.mutedText)),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => finance.unlinkPartner(),
+                      child: const Text('Unlink', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 24),
 
             // QR Code Display Section

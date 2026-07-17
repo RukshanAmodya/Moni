@@ -19,6 +19,7 @@ class FinanceProvider with ChangeNotifier {
   bool _pinEnabled = false;
   String _pinHash = '';
   bool _biometricEnabled = false;
+  String _partnerEmail = '';
 
   double _overallMonthlyBudget = 0.0;
   double _overallWeeklyBudget = 0.0;
@@ -36,6 +37,7 @@ class FinanceProvider with ChangeNotifier {
   String get currency => _currency;
   bool get pinEnabled => _pinEnabled;
   bool get biometricEnabled => _biometricEnabled;
+  String get partnerEmail => _partnerEmail;
   double get overallMonthlyBudget => _overallMonthlyBudget;
   double get overallWeeklyBudget => _overallWeeklyBudget;
   double get overallDailyBudget => _overallDailyBudget;
@@ -131,6 +133,9 @@ class FinanceProvider with ChangeNotifier {
     _piggyBankBalance = await _storage.getPiggyBankBalance();
     _incognitoEnabled = await _storage.isIncognitoEnabled();
     _selfDestructEnabled = await _storage.isSelfDestructEnabled();
+
+    final prefs = await SharedPreferences.getInstance();
+    _partnerEmail = prefs.getString('moni_partner_email') ?? '';
 
     await processRecurringTransactions();
     notifyListeners();
@@ -654,6 +659,25 @@ class FinanceProvider with ChangeNotifier {
   Future<void> deletePortfolioAsset(String id) async {
     _portfolioAssets.removeWhere((item) => item.id == id);
     await _storage.savePortfolioAssets(_portfolioAssets);
+    notifyListeners();
+  }
+
+  Future<void> linkPartner(String email) async {
+    _partnerEmail = email;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('moni_partner_email', email);
+    await addLocalNotification(
+      title: 'Partner Linked',
+      body: 'You are now connected with $email for collaborative budgeting.',
+      type: 'sync',
+    );
+    notifyListeners();
+  }
+
+  Future<void> unlinkPartner() async {
+    _partnerEmail = '';
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('moni_partner_email');
     notifyListeners();
   }
 }
