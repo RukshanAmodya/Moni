@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import '../providers/finance_provider.dart';
 import '../theme/moni_theme.dart';
 import '../models/finance_models.dart';
+import 'savings_challenges_screen.dart';
+import 'wealth_tracker_screen.dart';
 
 class PlanScreen extends StatelessWidget {
   const PlanScreen({super.key});
@@ -332,6 +334,68 @@ class PlanScreen extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 20),
+
+              // Premium Features Hub
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SavingsChallengesScreen()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: MoniTheme.premiumCardDecoration,
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Color(0xFFF0EFFC),
+                              child: Icon(Icons.emoji_events_rounded, color: Color(0xFF8A72F6)),
+                            ),
+                            SizedBox(height: 12),
+                            Text('Challenges', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            SizedBox(height: 2),
+                            Text('Gamified savings', style: TextStyle(color: MoniTheme.mutedText, fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const WealthTrackerScreen()),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: MoniTheme.premiumCardDecoration,
+                        child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Color(0xFFE6F7ED),
+                              child: Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF2E7D32)),
+                            ),
+                            SizedBox(height: 12),
+                            Text('Wealth Tracker', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            SizedBox(height: 2),
+                            Text('Assets & Liabilities', style: TextStyle(color: MoniTheme.mutedText, fontSize: 11)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
 
               // Goals Header
               Row(

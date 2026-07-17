@@ -9,6 +9,7 @@ import '../widgets/currency_selector_sheet.dart';
 import 'navigation_holder.dart';
 import 'reports_export_screen.dart';
 import 'notifications_screen.dart';
+import 'shared_ledgers_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -156,6 +157,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 14),
                             ],
                           ),
+                        ),
+                      ),
+
+                      // Shared Ledgers Collaborative Button
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const SharedLedgersScreen()),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          margin: const EdgeInsets.only(right: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.18),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.people_alt_rounded, color: Colors.white, size: 20),
                         ),
                       ),
 
