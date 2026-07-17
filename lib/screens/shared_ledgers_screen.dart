@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/moni_theme.dart';
 import '../providers/finance_provider.dart';
+import '../providers/auth_provider.dart';
+import 'login_screen.dart';
 
 class SharedLedgersScreen extends StatefulWidget {
   const SharedLedgersScreen({super.key});
@@ -111,6 +113,70 @@ class _SharedLedgersScreenState extends State<SharedLedgersScreen> {
   @override
   Widget build(BuildContext context) {
     final finance = Provider.of<FinanceProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
+
+    if (!auth.isAuthenticated) {
+      return Scaffold(
+        backgroundColor: MoniTheme.background,
+        appBar: AppBar(
+          title: const Text('Shared Ledgers', style: TextStyle(fontWeight: FontWeight.w900)),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: MoniTheme.darkText,
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF0EFFC),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.lock_person_rounded, size: 64, color: Color(0xFF8A72F6)),
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Authentication Required',
+                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: MoniTheme.darkText),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Please sign in to access collaborative budgets and shared partner ledgers.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: MoniTheme.mutedText, fontSize: 13, height: 1.4),
+                ),
+                const SizedBox(height: 28),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF8A72F6),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Sign In / Register',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: MoniTheme.background,

@@ -122,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                 const SizedBox(height: 8),
                 const Text(
                   'Please sign in to view your profile, access your unique QR Code, and invite partners to co-manage ledgers.',
-                  textAlign: Center,
+                  textAlign: TextAlign.center,
                   style: TextStyle(color: MoniTheme.mutedText, fontSize: 13, height: 1.4),
                 ),
                 const SizedBox(height: 28),
@@ -252,7 +252,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   const SizedBox(height: 8),
                   const Text(
                     'Let your partner scan this QR code to connect budgets instantly.',
-                    textAlign: Center,
+                    textAlign: TextAlign.center,
                     style: TextStyle(color: MoniTheme.mutedText, fontSize: 12, height: 1.3),
                   ),
                 ],
@@ -294,14 +294,16 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                                 child: Container(
                                   width: 180,
                                   height: 3,
-                                  color: const Color(0xFF8A72F6),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF8A72F6).withOpacity(0.8),
-                                      blurRadius: 8,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF8A72F6),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF8A72F6).withOpacity(0.8),
+                                        blurRadius: 8,
+                                        spreadRadius: 2,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               );
                             },
