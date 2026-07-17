@@ -526,14 +526,39 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
       _toWalletId = finance.wallets.firstWhere((w) => w.id != _walletId).id;
     }
 
+    const Color brandPurple = Color(0xFF8A72F6);
+
+    InputDecoration customInputDecoration({required String labelText, IconData? prefixIcon}) {
+      return InputDecoration(
+        labelText: labelText,
+        labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13, fontWeight: FontWeight.bold),
+        filled: true,
+        fillColor: const Color(0xFFF7F8FA),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey.shade100, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: brandPurple, width: 1.8),
+        ),
+        prefixIcon: prefixIcon != null ? Icon(prefixIcon, size: 20, color: Colors.grey.shade400) : null,
+      );
+    }
+
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       title: const Text(
         'New Transaction',
-        style: TextStyle(fontWeight: FontWeight.w900, color: MoniTheme.darkText, fontSize: 22),
+        style: TextStyle(fontWeight: FontWeight.w900, color: MoniTheme.darkText, fontSize: 20),
       ),
-      contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+      contentPadding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -544,7 +569,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               Container(
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
+                  color: const Color(0xFFF0EFFC),
                   borderRadius: BorderRadius.circular(25),
                 ),
                 padding: const EdgeInsets.all(4),
@@ -560,13 +585,17 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: _type == 'expense' ? Colors.redAccent : Colors.transparent,
+                            color: _type == 'expense' ? brandPurple : Colors.transparent,
                             borderRadius: BorderRadius.circular(21),
                           ),
                           alignment: Alignment.center,
-                          child: const Text(
+                          child: Text(
                             'Expense',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            style: TextStyle(
+                              color: _type == 'expense' ? Colors.white : brandPurple,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ),
@@ -581,13 +610,17 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: _type == 'income' ? Colors.green : Colors.transparent,
+                            color: _type == 'income' ? brandPurple : Colors.transparent,
                             borderRadius: BorderRadius.circular(21),
                           ),
                           alignment: Alignment.center,
-                          child: const Text(
+                          child: Text(
                             'Income',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            style: TextStyle(
+                              color: _type == 'income' ? Colors.white : brandPurple,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ),
@@ -601,13 +634,17 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         },
                         child: Container(
                           decoration: BoxDecoration(
-                            color: _type == 'transfer' ? MoniTheme.sageGreen : Colors.transparent,
+                            color: _type == 'transfer' ? brandPurple : Colors.transparent,
                             borderRadius: BorderRadius.circular(21),
                           ),
                           alignment: Alignment.center,
-                          child: const Text(
+                          child: Text(
                             'Transfer',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            style: TextStyle(
+                              color: _type == 'transfer' ? Colors.white : brandPurple,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ),
@@ -620,13 +657,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               // Title Input
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: 'Description / Title',
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  prefixIcon: const Icon(Icons.edit_note, size: 20),
-                ),
+                decoration: customInputDecoration(labelText: 'Description / Title', prefixIcon: Icons.edit_note),
                 validator: (val) => val == null || val.isEmpty ? 'Please enter a title' : null,
               ),
               const SizedBox(height: 16),
@@ -635,13 +666,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               TextFormField(
                 controller: _amountController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Amount',
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  prefixIcon: const Icon(Icons.payments_outlined, size: 20),
-                ),
+                decoration: customInputDecoration(labelText: 'Amount', prefixIcon: Icons.payments_outlined),
                 validator: (val) {
                   if (val == null || val.isEmpty) return 'Please enter amount';
                   if (double.tryParse(val) == null) return 'Enter a valid number';
@@ -655,14 +680,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 // Category Selector
                 DropdownButtonFormField<String>(
                   value: _category,
-                  decoration: InputDecoration(
-                    labelText: 'Category',
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  ),
+                  decoration: customInputDecoration(labelText: 'Category'),
                   items: categories
-                      .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+                      .map((cat) => DropdownMenuItem(value: cat, child: Text(cat, style: const TextStyle(fontSize: 13))))
                       .toList(),
                   onChanged: (val) {
                     if (val != null) {
@@ -676,14 +696,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 // Wallet Selector
                 DropdownButtonFormField<String>(
                   value: _walletId,
-                  decoration: InputDecoration(
-                    labelText: 'Wallet / Account',
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  ),
+                  decoration: customInputDecoration(labelText: 'Wallet / Account'),
                   items: finance.wallets
-                      .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name)))
+                      .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name, style: const TextStyle(fontSize: 13))))
                       .toList(),
                   onChanged: (val) {
                     if (val != null) {
@@ -697,14 +712,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 // Source Wallet Selector
                 DropdownButtonFormField<String>(
                   value: _walletId,
-                  decoration: InputDecoration(
-                    labelText: 'From Wallet (Source)',
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  ),
+                  decoration: customInputDecoration(labelText: 'From Wallet (Source)'),
                   items: finance.wallets
-                      .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name)))
+                      .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name, style: const TextStyle(fontSize: 13))))
                       .toList(),
                   onChanged: (val) {
                     if (val != null) {
@@ -722,15 +732,10 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 // Destination Wallet Selector
                 DropdownButtonFormField<String>(
                   value: _toWalletId,
-                  decoration: InputDecoration(
-                    labelText: 'To Wallet (Destination)',
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  ),
+                  decoration: customInputDecoration(labelText: 'To Wallet (Destination)'),
                   items: finance.wallets
                       .where((w) => w.id != _walletId)
-                      .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name)))
+                      .map((w) => DropdownMenuItem(value: w.id, child: Text(w.name, style: const TextStyle(fontSize: 13))))
                       .toList(),
                   onChanged: (val) {
                     if (val != null) {
@@ -746,26 +751,14 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               // Tags Input (Optional)
               TextFormField(
                 controller: _tagsController,
-                decoration: InputDecoration(
-                  labelText: 'Tags (e.g. #Trip2026, #Medical)',
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  prefixIcon: const Icon(Icons.tag, size: 20),
-                ),
+                decoration: customInputDecoration(labelText: 'Tags (e.g. #Trip2026, #Medical)', prefixIcon: Icons.tag),
               ),
               const SizedBox(height: 16),
 
               // Location Input (Optional)
               TextFormField(
                 controller: _locationController,
-                decoration: InputDecoration(
-                  labelText: 'Location (Optional)',
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  prefixIcon: const Icon(Icons.location_on_outlined, size: 20),
-                ),
+                decoration: customInputDecoration(labelText: 'Location (Optional)', prefixIcon: Icons.location_on_outlined),
               ),
               const SizedBox(height: 16),
 
@@ -776,7 +769,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                     child: OutlinedButton.icon(
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        side: BorderSide(color: Colors.grey.shade300),
+                        foregroundColor: brandPurple,
                       ),
                       onPressed: () {
                         setState(() {
@@ -784,7 +779,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                         });
                       },
                       icon: Icon(_attachmentPath == null ? Icons.camera_alt_outlined : Icons.check_circle, size: 20),
-                      label: Text(_attachmentPath == null ? 'Upload Receipt Photo' : 'Receipt Linked'),
+                      label: Text(_attachmentPath == null ? 'Upload Receipt Photo' : 'Receipt Linked', style: const TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ),
                 ],
@@ -795,18 +790,13 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               if (_type == 'income') ...[
                 DropdownButtonFormField<String>(
                   value: _refundLinkedTxId,
-                  decoration: InputDecoration(
-                    labelText: 'Link to original expense (Refund)',
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  ),
+                  decoration: customInputDecoration(labelText: 'Link to original expense (Refund)'),
                   items: [
-                    const DropdownMenuItem(value: null, child: Text('None (Standard Income)')),
+                    const DropdownMenuItem(value: null, child: Text('None (Standard Income)', style: TextStyle(fontSize: 13))),
                     ...finance.transactions
                         .whereType<Transaction>()
                         .where((t) => t.type == 'expense')
-                        .map((t) => DropdownMenuItem(value: t.id, child: Text('${t.title} - LKR ${t.amount}'))),
+                        .map((t) => DropdownMenuItem(value: t.id, child: Text('${t.title} - LKR ${t.amount}', style: const TextStyle(fontSize: 13)))),
                   ],
                   onChanged: (val) {
                     setState(() {
@@ -819,9 +809,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
 
               // Recurring Settings
               CheckboxListTile(
-                title: const Text('Recurring Schedule', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                title: const Text('Recurring Schedule', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: MoniTheme.darkText)),
                 value: _isRecurring,
-                activeColor: MoniTheme.sageGreen,
+                activeColor: brandPurple,
                 onChanged: (val) {
                   setState(() {
                     _isRecurring = val ?? false;
@@ -835,16 +825,11 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   value: _recurrenceInterval,
-                  decoration: InputDecoration(
-                    labelText: 'Interval',
-                    filled: true,
-                    fillColor: Colors.grey.shade50,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  ),
+                  decoration: customInputDecoration(labelText: 'Interval'),
                   items: const [
-                    DropdownMenuItem(value: 'daily', child: Text('Daily')),
-                    DropdownMenuItem(value: 'weekly', child: Text('Weekly')),
-                    DropdownMenuItem(value: 'monthly', child: Text('Monthly')),
+                    DropdownMenuItem(value: 'daily', child: Text('Daily', style: TextStyle(fontSize: 13))),
+                    DropdownMenuItem(value: 'weekly', child: Text('Weekly', style: TextStyle(fontSize: 13))),
+                    DropdownMenuItem(value: 'monthly', child: Text('Monthly', style: TextStyle(fontSize: 13))),
                   ],
                   onChanged: (val) {
                     if (val != null) {
@@ -859,9 +844,9 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
 
               // Pending Checkbox
               CheckboxListTile(
-                title: const Text('Mark as Pending', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                title: const Text('Mark as Pending', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: MoniTheme.darkText)),
                 value: _isPending,
-                activeColor: MoniTheme.sageGreen,
+                activeColor: brandPurple,
                 onChanged: (val) {
                   setState(() {
                     _isPending = val ?? false;
@@ -878,13 +863,13 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: MoniTheme.mutedText, fontWeight: FontWeight.bold)),
+          child: const Text('Cancel', style: TextStyle(color: MoniTheme.mutedText, fontWeight: FontWeight.bold, fontSize: 13)),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: MoniTheme.blackAccent,
+            backgroundColor: brandPurple,
             foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             elevation: 0,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           ),
@@ -921,7 +906,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
               Navigator.pop(context);
             }
           },
-          child: const Text('Add Transaction', style: TextStyle(fontWeight: FontWeight.bold)),
+          child: const Text('Add Transaction', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
         ),
       ],
     );
