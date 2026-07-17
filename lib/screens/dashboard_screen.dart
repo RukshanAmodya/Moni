@@ -284,9 +284,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
 
                   // Transactions List grouped by date
-                  const Text(
-                    'Monday, 12 January, 2026',
-                    style: TextStyle(color: MoniTheme.mutedText, fontSize: 11, fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Monday, 12 January, 2026',
+                        style: TextStyle(color: MoniTheme.mutedText, fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Total $currencySymbol ${NumberFormat('#,##0.00').format(totalExpenses)}',
+                        style: const TextStyle(color: MoniTheme.mutedText, fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
 
