@@ -17,12 +17,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
   bool _isSignUp = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _nameController.dispose();
     super.dispose();
   }
 
@@ -35,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       bool success;
       if (_isSignUp) {
-        success = await auth.signUp(email, password);
+        success = await auth.signUp(email, password, _nameController.text.trim());
       } else {
         success = await auth.signIn(email, password);
       }
@@ -137,6 +139,37 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
+
+                  if (_isSignUp) ...[
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Your Name',
+                        labelStyle: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                        prefixIcon: const Icon(Icons.person_outline_rounded, size: 20, color: Color(0xFF8A72F6)),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          borderSide: const BorderSide(color: Color(0xFF8A72F6), width: 2),
+                        ),
+                      ),
+                      validator: (val) {
+                        if (val == null || val.isEmpty) return 'Please enter your name';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 18),
+                  ],
 
                   // Email Input
                   TextFormField(

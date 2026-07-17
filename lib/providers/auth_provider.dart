@@ -33,11 +33,18 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> signUp(String email, String password) async {
+  Future<bool> signUp(String email, String password, [String displayName = '']) async {
     _setLoading(true);
     _clearError();
     try {
-      await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      final credential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      if (credential.user != null) {
+        if (displayName.isNotEmpty) {
+          await credential.user!.updateDisplayName(displayName);
+          await credential.user!.reload();
+        }
+        _user = _auth.currentUser;
+      }
       _setLoading(false);
       return true;
     } on FirebaseAuthException catch (e) {

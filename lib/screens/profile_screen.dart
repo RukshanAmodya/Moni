@@ -129,6 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final userEmail = auth.user?.email ?? 'user@moni.com';
     final userUid = auth.user?.uid ?? 'MONI-7729-XX';
+    final userName = auth.user?.displayName ?? userEmail.split('@')[0];
 
     return Scaffold(
       backgroundColor: MoniTheme.background,
@@ -163,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     radius: 30,
                     backgroundColor: const Color(0xFFF0EFFC),
                     child: Text(
-                      userEmail[0].toUpperCase(),
+                      userName[0].toUpperCase(),
                       style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF8A72F6)),
                     ),
                   ),
@@ -173,13 +174,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          userEmail,
+                          userName,
                           style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: MoniTheme.darkText),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          userEmail,
+                          style: const TextStyle(color: MoniTheme.mutedText, fontSize: 11),
                         ),
                         const SizedBox(height: 4),
                         const Text(
                           'Moni Premium Account',
-                          style: TextStyle(color: Color(0xFF8A72F6), fontSize: 11, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: Color(0xFF8A72F6), fontSize: 10, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
