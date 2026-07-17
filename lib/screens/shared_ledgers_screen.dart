@@ -177,7 +177,7 @@ class _SharedLedgersScreenState extends State<SharedLedgersScreen> {
                     SizedBox(height: 4),
                     Text(
                       'Scan your partner\'s QR code in the Profile screen to link a shared wallet.',
-                      textAlign: Center,
+                      textAlign: TextAlign.center,
                       style: TextStyle(color: MoniTheme.mutedText, fontSize: 11),
                     ),
                   ],
